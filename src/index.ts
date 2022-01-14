@@ -39,6 +39,48 @@ function parseEnvInt(envName: string): number | undefined {
     return v ? parseInt(v) : undefined;
 }
 
+function parseEnvBoolean(envName: string): boolean | undefined {
+    const v = process.env[envName];
+    if (!v) {
+        return undefined;
+    }
+
+    switch (v.toLowerCase()) {
+        case '1':
+        case 'true':
+        case 'yes':
+            return true;
+        case '0':
+        case 'false':
+        case 'no':
+            return false;
+        default:
+            throw new Error(`invalid value ${envName}=${v}`);
+    }
+}
+
+function parseDir(envName: string): string | undefined {
+    const v = process.env[envName];
+    if (!v) {
+        return undefined;
+    }
+
+    if (!tryStat(v)?.isDirectory()) {
+        throw new Error(`${envName} does not exist, or is not a directory`);
+    }
+
+    return v;
+}
+
+const quiet = parseEnvBoolean('PPROFER_QUIET') ?? false;
+
+function log(message: string): void {
+    if (!quiet) {
+        console.error(message);
+    }
+}
+
+const outDir = parseDir('PPROFER_OUT') ?? process.cwd();
 const heapProfilePath = getOutputPath('PPROFER_HEAP', `pprof-heap-profile-${process.pid}.pb.gz`);
 const timeProfilePath = getOutputPath('PPROFER_TIME', `pprof-time-profile-${process.pid}.pb.gz`);
 
@@ -49,14 +91,14 @@ function heapProfile() {
     // The maximum stack depth for samples collected.
     const heapStackDepth = parseEnvInt('PPROFER_HEAP_STACK_DEPTH') ?? 64;
 
-    console.log('Starting heap profile');
+    log('Starting heap profile');
     pprof.heap.start(heapIntervalBytes, heapStackDepth);
 
     catchExit.addExitCallback(() => {
         const profile = pprof.heap.profile();
         const buffer = pprof.encodeSync(profile);
         fs.writeFileSync(heapProfilePath, buffer);
-        console.log(`Wrote profile to ${heapProfilePath}`);
+        log(`Wrote profile to ${heapProfilePath}`);
     });
 }
 
@@ -64,10 +106,10 @@ function timeProfile() {
     const stop = pprof.time.start();
 
     catchExit.addExitCallback(() => {
-        console.log('Ending time profile');
+        log('Ending time profile');
         const profile = stop();
         const buffer = pprof.encodeSync(profile);
         fs.writeFileSync(timeProfilePath, buffer);
-        console.log(`Wrote profile to ${timeProfilePath}`);
+        log(`Wrote profile to ${timeProfilePath}`);
     });
 }

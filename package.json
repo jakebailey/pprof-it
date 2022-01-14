@@ -1,0 +1,40 @@
+{
+    "name": "pprofer",
+    "version": "0.1.0",
+    "description": "Handy wrapper for pprof",
+    "repository": "https://github.com/jakebailey/pprofer",
+    "author": "Jake Bailey",
+    "license": "MIT",
+    "engines": {
+        "node": ">=12.0.0"
+    },
+    "main": "dist/index.js",
+    "files": [
+        "dist",
+        "LICENSE.txt"
+    ],
+    "scripts": {
+        "clean": "rimraf dist",
+        "prepack": "yarn run clean && tsc",
+        "check": "yarn run check:eslint && yarn run check:prettier",
+        "check:eslint": "eslint .",
+        "fix:eslint": "eslint --fix .",
+        "check:prettier": "prettier -c .",
+        "fix:prettier": "prettier --write ."
+    },
+    "dependencies": {
+        "@datadog/pprof": "^0.3.0",
+        "catch-exit": "^1.2.2"
+    },
+    "devDependencies": {
+        "@types/node": "^12.20.41",
+        "@typescript-eslint/eslint-plugin": "^5.9.1",
+        "@typescript-eslint/parser": "^5.9.1",
+        "eslint": "^8.6.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-simple-import-sort": "^7.0.0",
+        "prettier": "2.5.1",
+        "rimraf": "^3.0.2",
+        "typescript": "^4.5.4"
+    }
+}

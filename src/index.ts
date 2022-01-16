@@ -7,8 +7,13 @@ function isPreloading(): boolean {
     return module.parent?.id === 'internal/preload';
 }
 
+function exitError(message: string): never {
+    console.error('pprof-it: ' + message);
+    process.exit(1);
+}
+
 if (!isPreloading()) {
-    throw new Error('PPROF must be required using the --require flag');
+    exitError('PPROF must be required using the --require flag');
 }
 
 import * as pprof from '@datadog/pprof';
@@ -58,17 +63,17 @@ function parseEnvBoolean(envName: EnvOpt): boolean | undefined {
         case 'off':
             return false;
         default:
-            throw new Error(`invalid value ${envName}=${v}`);
+            exitError(`invalid value ${envName}=${v}`);
     }
 }
 
 function assertExistsAndDir(p: string) {
     const stat = tryStat(p);
     if (!stat) {
-        throw new Error(`${p} does not exist`);
+        exitError(`${p} does not exist`);
     }
     if (!stat.isDirectory()) {
-        throw new Error(`${p} is not a directory`);
+        exitError(`${p} is not a directory`);
     }
 }
 

@@ -124,7 +124,7 @@ abstract class Profiler {
     private _profile?: Profile;
 
     constructor(pathEnvName: EnvOpt, private _name: string) {
-        this._profilePath = parseOutputPath(pathEnvName, `pprof-${_name}-profile-${process.pid}.pb.gz`);
+        this._profilePath = parseOutputPath(pathEnvName, `pprof-${_name}-${process.pid}.pb.gz`);
     }
 
     protected abstract _start(): void;

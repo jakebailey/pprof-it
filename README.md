@@ -5,7 +5,7 @@ CPU and memory profiles of node programs.
 
 ## Usage
 
-To use `pprof-it`, you need to pass `--require pprof-it` to NodeJS.
+To use `pprof-it`, you need to pass `--require pprof-it` to node.
 Depending on how your program is run, this can be done one of a few ways:
 
 ```sh

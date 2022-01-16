@@ -99,10 +99,11 @@ function heapProfile() {
     pprof.heap.start(heapIntervalBytes, heapStackDepth);
 
     catchExit.addExitCallback(() => {
+        log('Ending heap profile');
         const profile = pprof.heap.profile();
         const buffer = pprof.encodeSync(profile);
         fs.writeFileSync(profilePath, buffer);
-        log(`Wrote profile to ${profilePath}`);
+        log(`Wrote heap profile to ${profilePath}`);
     });
 }
 
@@ -115,11 +116,9 @@ function timeProfile() {
     catchExit.addExitCallback(() => {
         log('Ending time profile');
         const profile = stop();
-        log('Encoding time profile');
         const buffer = pprof.encodeSync(profile);
-        log('Writing time profile');
         fs.writeFileSync(profilePath, buffer);
-        log(`Wrote profile to ${profilePath}`);
+        log(`Wrote time profile to ${profilePath}`);
     });
 }
 

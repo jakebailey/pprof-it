@@ -19,7 +19,7 @@ import signalExit from 'signal-exit';
 const enum EnvOpt {
     Profiles = 'PPROF_PROFILES',
     Out = 'PPROF_OUT',
-    logging = 'PPROF_LOGGING',
+    Logging = 'PPROF_LOGGING',
     HeapOut = 'PPROF_HEAP_OUT',
     HeapInterval = 'PPROF_HEAP_INTERVAL',
     HeapStackDepth = 'PPROF_HEAP_STACK_DEPTH',
@@ -62,8 +62,12 @@ function parseEnvBoolean(envName: EnvOpt): boolean | undefined {
 }
 
 function assertExistsAndDir(p: string) {
-    if (!tryStat(p)?.isDirectory()) {
-        throw new Error(`${p} does not exist, or is not a directory`);
+    const stat = tryStat(p);
+    if (!stat) {
+        throw new Error(`${p} does not exist`);
+    }
+    if (stat.isDirectory()) {
+        throw new Error(`${p} is not a directory`);
     }
 }
 
@@ -77,7 +81,7 @@ function parseEnvDir(envName: EnvOpt): string | undefined {
     return p;
 }
 
-const logging = parseEnvBoolean(EnvOpt.logging) ?? true;
+const logging = parseEnvBoolean(EnvOpt.Logging) ?? true;
 
 function log(message: string): void {
     if (logging) {
@@ -87,7 +91,7 @@ function log(message: string): void {
 
 const outDir = parseEnvDir(EnvOpt.Out) ?? process.cwd();
 
-function getOutputPath(envName: EnvOpt, defaultFilename: string): string {
+function parseOutputPath(envName: EnvOpt, defaultFilename: string): string {
     const p = path.resolve(outDir, process.env[envName] || '');
 
     if (tryStat(p)?.isDirectory()) {
@@ -103,52 +107,94 @@ function parseEnvSet(envName: EnvOpt, defaultValue: string): Set<string> {
     return new Set(v.split(',').filter((x) => x));
 }
 
-function heapProfile() {
-    const profilePath = getOutputPath(EnvOpt.HeapOut, `pprof-heap-profile-${process.pid}.pb.gz`);
+type Profile = ReturnType<typeof pprof.heap.profile>;
 
-    // The average number of bytes between samples.
-    const heapIntervalBytes = parseEnvInt(EnvOpt.HeapInterval) ?? 512 * 1024;
-
-    // The maximum stack depth for samples collected.
-    const heapStackDepth = parseEnvInt(EnvOpt.HeapStackDepth) ?? 64;
-
-    log('Starting heap profile');
-    pprof.heap.start(heapIntervalBytes, heapStackDepth);
-
-    signalExit(() => {
-        log('Ending heap profile');
-        const profile = pprof.heap.profile();
-        const buffer = pprof.encodeSync(profile);
-        fs.writeFileSync(profilePath, buffer);
-        log(`Wrote heap profile to ${profilePath}`);
-    });
+interface Profiler {
+    start(): void;
+    stop(): void;
+    write(): void;
 }
 
-function timeProfile() {
-    const profilePath = getOutputPath(EnvOpt.TimeOut, `pprof-time-profile-${process.pid}.pb.gz`);
+class HeapProfiler implements Profiler {
+    private profilePath: string;
+    private heapIntervalBytes: number;
+    private heapStackDepth: number;
+    private profile?: Profile;
 
-    log('Starting time profile');
-    const stop = pprof.time.start();
+    constructor() {
+        this.profilePath = parseOutputPath(EnvOpt.HeapOut, `pprof-heap-profile-${process.pid}.pb.gz`);
+        this.heapIntervalBytes = parseEnvInt(EnvOpt.HeapInterval) ?? 512 * 1024;
+        this.heapStackDepth = parseEnvInt(EnvOpt.HeapStackDepth) ?? 64;
+    }
 
-    signalExit(() => {
-        log('Ending time profile');
-        const profile = stop();
-        const buffer = pprof.encodeSync(profile);
-        fs.writeFileSync(profilePath, buffer);
-        log(`Wrote time profile to ${profilePath}`);
-    });
+    start(): void {
+        log('Starting heap profile');
+        pprof.heap.start(this.heapIntervalBytes, this.heapStackDepth);
+    }
+
+    stop(): void {
+        log('Stopping heap profile');
+        this.profile = pprof.heap.profile();
+    }
+
+    write(): void {
+        log(`Writing heap profile to ${this.profilePath}`);
+        const buffer = pprof.encodeSync(this.profile!);
+        fs.writeFileSync(this.profilePath, buffer);
+    }
 }
 
-// TODO: instead of an onExit for each profile, just make note of which are in progress,
-// stop all, then encode/write all.
+class TimeProfiler implements Profiler {
+    private profilePath: string;
+    private stopFn?: () => Profile;
+    private profile?: Profile;
+
+    constructor() {
+        this.profilePath = parseOutputPath(EnvOpt.TimeOut, `pprof-time-profile-${process.pid}.pb.gz`);
+    }
+
+    start(): void {
+        log('Starting time profile');
+        this.stopFn = pprof.time.start();
+    }
+
+    stop(): void {
+        log('Stopping time profile');
+        this.profile = this.stopFn!();
+    }
+
+    write(): void {
+        log(`Writing time profile to ${this.profilePath}`);
+        const buffer = pprof.encodeSync(this.profile!);
+        fs.writeFileSync(this.profilePath, buffer);
+    }
+}
+
+const profilers: Profiler[] = [];
 
 for (const x of parseEnvSet(EnvOpt.Profiles, 'heap,time')) {
     switch (x) {
         case 'heap':
-            heapProfile();
+            profilers.push(new HeapProfiler());
             break;
         case 'time':
-            timeProfile();
+            profilers.push(new TimeProfiler());
             break;
     }
+}
+
+if (profilers.length) {
+    for (const p of profilers) {
+        p.start();
+    }
+
+    signalExit(() => {
+        for (const p of profilers) {
+            p.stop();
+        }
+
+        for (const p of profilers) {
+            p.write();
+        }
+    });
 }

@@ -19,11 +19,8 @@ $ npm exec --node-option="--require pprof-it" <executable name>
 # Executables via npm/npx (v6)
 $ npx --node-arg="--require pprof-it" <executable name>
 
-# yarn v1
-$ ???
-
-# yarn v2+
-$ ???
+# Executables via yarn (usually)
+$ node --require pprof-it $(yarn bin <executable name>)
 ```
 
 ## Options

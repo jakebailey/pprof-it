@@ -38,14 +38,15 @@ via the following environment variables.
 -   `PPROF_LOGGING`: Controls `pprof-it`'s logging. May be `off` or `on`.
     Defaults to `on`.
 
--   `PPROF_HEAP_OUT`: Path to write the heap profile, to, if enabled. If
+-   `PPROF_HEAP_OUT`: Path to write the heap profile to, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,
     the profile will be placed in that directory.
 
--   `PPROF_HEAP_INTERVAL`: Average number of bytes between samples. Defaults to
-    `512*1-24`.
+-   `PPROF_HEAP_INTERVAL`: Average number of bytes between heap samples
+    Defaults to `512*1-24`.
 
--   `PPROF_HEAP_STACK_DEPTH`: Maximum stack depth for samples. Defaults to `64`.
+-   `PPROF_HEAP_STACK_DEPTH`: Maximum stack depth for heap samples.
+    Defaults to `64`.
 
 -   `PPROF_TIME_OUT`: Path to write the time profile to, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,

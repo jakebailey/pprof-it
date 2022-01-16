@@ -16,16 +16,60 @@
         "no-undef": 0,
         "simple-import-sort/imports": "error",
         "simple-import-sort/exports": "error",
-        "@typescript-eslint/explicit-function-return-type": 0,
-        "@typescript-eslint/explicit-module-boundary-types": 0,
-        "@typescript-eslint/ban-types": 0,
-        "@typescript-eslint/camelcase": 0,
-        "@typescript-eslint/no-empty-interface": 0,
         "@typescript-eslint/no-explicit-any": 0,
-        "@typescript-eslint/no-namespace": 0,
-        "@typescript-eslint/no-non-null-assertion": 0,
-        "@typescript-eslint/no-this-alias": 0,
-        "@typescript-eslint/no-unused-vars": 0,
-        "@typescript-eslint/no-use-before-define": 0
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": [
+                    "classProperty",
+                    "typeProperty",
+                    "parameterProperty",
+                    "classMethod",
+                    "typeMethod",
+                    "accessor"
+                ],
+                "modifiers": ["private"],
+                "leadingUnderscore": "require",
+                "format": ["camelCase"],
+                "filter": {
+                    "regex": "^(test_| )",
+                    "match": false
+                }
+            },
+            {
+                "selector": [
+                    "classProperty",
+                    "typeProperty",
+                    "parameterProperty",
+                    "classMethod",
+                    "typeMethod",
+                    "accessor"
+                ],
+                "modifiers": ["protected"],
+                "leadingUnderscore": "allow",
+                "format": ["camelCase"],
+                "filter": {
+                    "regex": "^(test_| )",
+                    "match": false
+                }
+            },
+            {
+                "selector": [
+                    "classProperty",
+                    "typeProperty",
+                    "parameterProperty",
+                    "classMethod",
+                    "typeMethod",
+                    "accessor"
+                ],
+                "modifiers": ["public"],
+                "leadingUnderscore": "forbid",
+                "format": ["camelCase"],
+                "filter": {
+                    "regex": "^(test_| )",
+                    "match": false
+                }
+            }
+        ]
     }
 }

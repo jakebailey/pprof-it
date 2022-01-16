@@ -12,9 +12,9 @@ if (!isPreloading()) {
 }
 
 import * as pprof from '@datadog/pprof';
-import * as catchExit from 'catch-exit';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as unload from 'unload';
 
 function tryStat(p: string) {
     try {
@@ -98,7 +98,7 @@ function heapProfile() {
     log('Starting heap profile');
     pprof.heap.start(heapIntervalBytes, heapStackDepth);
 
-    catchExit.addExitCallback(() => {
+    unload.add(() => {
         log('Ending heap profile');
         const profile = pprof.heap.profile();
         const buffer = pprof.encodeSync(profile);
@@ -113,7 +113,7 @@ function timeProfile() {
     log('Starting time profile');
     const stop = pprof.time.start();
 
-    catchExit.addExitCallback(() => {
+    unload.add(() => {
         log('Ending time profile');
         const profile = stop();
         const buffer = pprof.encodeSync(profile);

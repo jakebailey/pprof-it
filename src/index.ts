@@ -200,6 +200,8 @@ for (const x of parseEnvSet(EnvOpt.Profiles, 'heap,time')) {
         case 'time':
             profilers.push(new TimeProfiler());
             break;
+        default:
+            exitError(`unknown profiler ${x}`);
     }
 }
 

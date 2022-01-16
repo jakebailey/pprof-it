@@ -5,6 +5,7 @@
         "noImplicitReturns": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
+        "newLine": "lf",
     },
     "exclude": ["dist", "node_modules"]
 }

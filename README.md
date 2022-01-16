@@ -40,7 +40,8 @@ via the following environment variables.
 
 -   `PPROF_HEAP_OUT`: Path to write the heap profile to, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,
-    the profile will be placed in that directory.
+    the profile will be placed in that directory. Defaults to
+    `pprof-heap-${process.id}.pb.gz`.
 
 -   `PPROF_HEAP_INTERVAL`: Average number of bytes between heap samples
     Defaults to `512*1-24`.
@@ -50,4 +51,5 @@ via the following environment variables.
 
 -   `PPROF_TIME_OUT`: Path to write the time profile to, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,
-    the profile will be placed in that directory.
+    the profile will be placed in that directory. Defaults to
+    `pprof-time-${process.id}.pb.gz`.

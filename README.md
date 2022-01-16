@@ -44,7 +44,7 @@ via the following environment variables.
     `pprof-heap-${process.id}.pb.gz`.
 
 -   `PPROF_HEAP_INTERVAL`: Average number of bytes between heap samples
-    Defaults to `512*1-24`.
+    Defaults to `512*1024`.
 
 -   `PPROF_HEAP_STACK_DEPTH`: Maximum stack depth for heap samples.
     Defaults to `64`.

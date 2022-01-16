@@ -98,6 +98,11 @@ function getOutputPath(envName: EnvOpt, defaultFilename: string): string {
     return p;
 }
 
+function parseEnvSet(envName: EnvOpt, defaultValue: string): Set<string> {
+    const v = process.env[envName] || defaultValue;
+    return new Set(v.split(',').filter((x) => x));
+}
+
 function heapProfile() {
     const profilePath = getOutputPath(EnvOpt.HeapOut, `pprof-heap-profile-${process.pid}.pb.gz`);
 
@@ -137,9 +142,7 @@ function timeProfile() {
 // TODO: instead of an onExit for each profile, just make note of which are in progress,
 // stop all, then encode/write all.
 
-// TODO: dedupe this
-const profiles = (process.env[EnvOpt.Profiles] || 'time,heap').split(',');
-for (const x of profiles) {
+for (const x of parseEnvSet(EnvOpt.Profiles, 'heap,time')) {
     switch (x) {
         case 'heap':
             heapProfile();

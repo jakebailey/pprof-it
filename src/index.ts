@@ -8,7 +8,7 @@ function isPreloading(): boolean {
 }
 
 if (!isPreloading()) {
-    throw new Error('pprofer must be required using the --require flag');
+    throw new Error('PPROF must be required using the --require flag');
 }
 
 import * as pprof from '@datadog/pprof';
@@ -22,16 +22,6 @@ function tryStat(p: string) {
     } catch {
         return undefined;
     }
-}
-
-function getOutputPath(envName: string, defaultFilename: string): string {
-    const p = process.env[envName] || process.cwd();
-
-    if (tryStat(p)?.isDirectory()) {
-        return path.join(p, defaultFilename);
-    }
-
-    return p;
 }
 
 function parseEnvInt(envName: string): number | undefined {
@@ -59,20 +49,23 @@ function parseEnvBoolean(envName: string): boolean | undefined {
     }
 }
 
-function parseDir(envName: string): string | undefined {
-    const v = process.env[envName];
-    if (!v) {
+function assertExistsAndDir(p: string) {
+    if (!tryStat(p)?.isDirectory()) {
+        throw new Error(`${p} does not exist, or is not a directory`);
+    }
+}
+
+function parseEnvDir(envName: string): string | undefined {
+    const p = process.env[envName];
+    if (!p) {
         return undefined;
     }
 
-    if (!tryStat(v)?.isDirectory()) {
-        throw new Error(`${envName} does not exist, or is not a directory`);
-    }
-
-    return v;
+    assertExistsAndDir(p);
+    return p;
 }
 
-const quiet = parseEnvBoolean('PPROFER_QUIET') ?? false;
+const quiet = parseEnvBoolean('PPROF_QUIET') ?? false;
 
 function log(message: string): void {
     if (!quiet) {
@@ -80,16 +73,27 @@ function log(message: string): void {
     }
 }
 
-const outDir = parseDir('PPROFER_OUT') ?? process.cwd();
-const heapProfilePath = getOutputPath('PPROFER_HEAP', `pprof-heap-profile-${process.pid}.pb.gz`);
-const timeProfilePath = getOutputPath('PPROFER_TIME', `pprof-time-profile-${process.pid}.pb.gz`);
+const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
+
+function getOutputPath(envName: string, defaultFilename: string): string {
+    const p = path.resolve(outDir, process.env[envName] || '');
+
+    if (tryStat(p)?.isDirectory()) {
+        return path.join(p, defaultFilename);
+    }
+
+    assertExistsAndDir(path.dirname(p));
+    return p;
+}
 
 function heapProfile() {
+    const profilePath = getOutputPath('PPROF_HEAP', `pprof-heap-profile-${process.pid}.pb.gz`);
+
     // The average number of bytes between samples.
-    const heapIntervalBytes = parseEnvInt('PPROFER_HEAP_INTERVAL') ?? 512 * 1024;
+    const heapIntervalBytes = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
 
     // The maximum stack depth for samples collected.
-    const heapStackDepth = parseEnvInt('PPROFER_HEAP_STACK_DEPTH') ?? 64;
+    const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
 
     log('Starting heap profile');
     pprof.heap.start(heapIntervalBytes, heapStackDepth);
@@ -97,19 +101,36 @@ function heapProfile() {
     catchExit.addExitCallback(() => {
         const profile = pprof.heap.profile();
         const buffer = pprof.encodeSync(profile);
-        fs.writeFileSync(heapProfilePath, buffer);
-        log(`Wrote profile to ${heapProfilePath}`);
+        fs.writeFileSync(profilePath, buffer);
+        log(`Wrote profile to ${profilePath}`);
     });
 }
 
 function timeProfile() {
+    const profilePath = getOutputPath('PPROF_TIME', `pprof-time-profile-${process.pid}.pb.gz`);
+
+    log('Starting time profile');
     const stop = pprof.time.start();
 
     catchExit.addExitCallback(() => {
         log('Ending time profile');
         const profile = stop();
+        log('Encoding time profile');
         const buffer = pprof.encodeSync(profile);
-        fs.writeFileSync(timeProfilePath, buffer);
-        log(`Wrote profile to ${timeProfilePath}`);
+        log('Writing time profile');
+        fs.writeFileSync(profilePath, buffer);
+        log(`Wrote profile to ${profilePath}`);
     });
+}
+
+const toRun = (process.env['PPROF'] || 'time,heap').split(',');
+for (const x of toRun) {
+    switch (x) {
+        case 'heap':
+            heapProfile();
+            break;
+        case 'time':
+            timeProfile();
+            break;
+    }
 }

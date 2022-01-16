@@ -16,6 +16,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import signalExit from 'signal-exit';
 
+const enum EnvOpt {
+    Profiles = 'PPROF_PROFILES',
+    Out = 'PPROF_OUT',
+    logging = 'PPROF_LOGGING',
+    HeapOut = 'PPROF_HEAP_OUT',
+    HeapInterval = 'PPROF_HEAP_INTERVAL',
+    HeapStackDepth = 'PPROF_HEAP_STACK_DEPTH',
+    TimeOut = 'PPROF_TIME_OUT',
+}
+
 function tryStat(p: string) {
     try {
         return fs.statSync(p);
@@ -24,12 +34,12 @@ function tryStat(p: string) {
     }
 }
 
-function parseEnvInt(envName: string): number | undefined {
+function parseEnvInt(envName: EnvOpt): number | undefined {
     const v = process.env[envName];
     return v ? parseInt(v) : undefined;
 }
 
-function parseEnvBoolean(envName: string): boolean | undefined {
+function parseEnvBoolean(envName: EnvOpt): boolean | undefined {
     const v = process.env[envName];
     if (!v) {
         return undefined;
@@ -39,10 +49,12 @@ function parseEnvBoolean(envName: string): boolean | undefined {
         case '1':
         case 'true':
         case 'yes':
+        case 'on':
             return true;
         case '0':
         case 'false':
         case 'no':
+        case 'off':
             return false;
         default:
             throw new Error(`invalid value ${envName}=${v}`);
@@ -55,7 +67,7 @@ function assertExistsAndDir(p: string) {
     }
 }
 
-function parseEnvDir(envName: string): string | undefined {
+function parseEnvDir(envName: EnvOpt): string | undefined {
     const p = process.env[envName];
     if (!p) {
         return undefined;
@@ -65,17 +77,17 @@ function parseEnvDir(envName: string): string | undefined {
     return p;
 }
 
-const quiet = parseEnvBoolean('PPROF_QUIET') ?? false;
+const logging = parseEnvBoolean(EnvOpt.logging) ?? true;
 
 function log(message: string): void {
-    if (!quiet) {
+    if (logging) {
         console.error(message);
     }
 }
 
-const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
+const outDir = parseEnvDir(EnvOpt.Out) ?? process.cwd();
 
-function getOutputPath(envName: string, defaultFilename: string): string {
+function getOutputPath(envName: EnvOpt, defaultFilename: string): string {
     const p = path.resolve(outDir, process.env[envName] || '');
 
     if (tryStat(p)?.isDirectory()) {
@@ -87,13 +99,13 @@ function getOutputPath(envName: string, defaultFilename: string): string {
 }
 
 function heapProfile() {
-    const profilePath = getOutputPath('PPROF_HEAP', `pprof-heap-profile-${process.pid}.pb.gz`);
+    const profilePath = getOutputPath(EnvOpt.HeapOut, `pprof-heap-profile-${process.pid}.pb.gz`);
 
     // The average number of bytes between samples.
-    const heapIntervalBytes = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
+    const heapIntervalBytes = parseEnvInt(EnvOpt.HeapInterval) ?? 512 * 1024;
 
     // The maximum stack depth for samples collected.
-    const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
+    const heapStackDepth = parseEnvInt(EnvOpt.HeapStackDepth) ?? 64;
 
     log('Starting heap profile');
     pprof.heap.start(heapIntervalBytes, heapStackDepth);
@@ -108,7 +120,7 @@ function heapProfile() {
 }
 
 function timeProfile() {
-    const profilePath = getOutputPath('PPROF_TIME', `pprof-time-profile-${process.pid}.pb.gz`);
+    const profilePath = getOutputPath(EnvOpt.TimeOut, `pprof-time-profile-${process.pid}.pb.gz`);
 
     log('Starting time profile');
     const stop = pprof.time.start();
@@ -122,8 +134,12 @@ function timeProfile() {
     });
 }
 
-const toRun = (process.env['PPROF'] || 'time,heap').split(',');
-for (const x of toRun) {
+// TODO: instead of an onExit for each profile, just make note of which are in progress,
+// stop all, then encode/write all.
+
+// TODO: dedupe this
+const profiles = (process.env[EnvOpt.Profiles] || 'time,heap').split(',');
+for (const x of profiles) {
     switch (x) {
         case 'heap':
             heapProfile();

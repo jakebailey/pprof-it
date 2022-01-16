@@ -3,7 +3,8 @@
     "compilerOptions": {
         "outDir": "./dist",
         "noImplicitReturns": true,
-        "noImplicitOverride": true
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
     },
     "exclude": ["dist", "node_modules"]
 }

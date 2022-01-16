@@ -1,14 +1,7 @@
 {
+    "extends": "@tsconfig/node12/tsconfig.json",
     "compilerOptions": {
-        "target": "ES2019",
-        "module": "commonjs",
-        "lib": ["ES2019"],
         "outDir": "./dist",
-        "esModuleInterop": true,
-        "moduleResolution": "node",
-        "skipLibCheck": true,
-        "strict": true,
-        "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": true,
         "noImplicitOverride": true
     },

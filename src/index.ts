@@ -108,6 +108,15 @@ function parseEnvSet(envName: EnvOpt, defaultValue: string): Set<string> {
     return new Set(v.split(',').filter((x) => x));
 }
 
+const cwdPrefix = process.cwd() + path.sep;
+
+function prettierPath(p: string) {
+    if (p.startsWith(cwdPrefix)) {
+        return p.slice(cwdPrefix.length);
+    }
+    return p;
+}
+
 type Profile = ReturnType<typeof pprof.heap.profile>;
 
 abstract class Profiler {
@@ -134,7 +143,7 @@ abstract class Profiler {
 
     write(): void {
         assert(this._profile);
-        log(`Writing ${this._name} profile to ${this._profilePath}`);
+        log(`Writing ${this._name} profile to ${prettierPath(this._profilePath)}`);
         const buffer = pprof.encodeSync(this._profile);
         fs.writeFileSync(this._profilePath, buffer);
     }

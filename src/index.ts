@@ -23,7 +23,7 @@ import path from 'path';
 import signalExit from 'signal-exit';
 
 const enum EnvOpt {
-    Profiles = 'PPROF_PROFILES',
+    Profilers = 'PPROF_PROFILERS',
     Out = 'PPROF_OUT',
     Logging = 'PPROF_LOGGING',
     HeapOut = 'PPROF_HEAP_OUT',
@@ -192,7 +192,7 @@ class TimeProfiler extends Profiler {
 
 const profilers: Profiler[] = [];
 
-for (const x of parseEnvSet(EnvOpt.Profiles, 'heap,time')) {
+for (const x of parseEnvSet(EnvOpt.Profilers, 'heap,time')) {
     switch (x) {
         case 'heap':
             profilers.push(new HeapProfiler());

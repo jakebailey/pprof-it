@@ -44,8 +44,8 @@ By default, `pprof-it` will produce both heap and time profiles and
 write them to the current directory. `pprof-it`'s behavior can be
 configured via the following environment variables.
 
--   `PPROF_PROFILES`: Which profiles to run, separated by commas. The
-    currently available profiles are `heap` and `time`. Defaults to `heap,time`.
+-   `PPROF_PROFILERS`: Which profilers to run, separated by commas. The
+    currently available profilers are `heap` and `time`. Defaults to `heap,time`.
 
 -   `PPROF_OUT`: Where to write the profiles. Defaults to the
     current working directory.

@@ -26,8 +26,8 @@ $ node --require pprof-it $(yarn bin <executable name>)
 ## Options
 
 By default, `pprof-it` will produce both heap and time profiles and
-write them to the current directory. This behavior can be configured
-via the following environment variables.
+write them to the current directory. `pprof-it`'s behavior can be
+configured via the following environment variables.
 
 -   `PPROF_PROFILES`: Which profiles to run, separated by commas. The
     currently available profiles are `heap` and `time`. Defaults to `heap,time`.

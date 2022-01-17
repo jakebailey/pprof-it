@@ -3,6 +3,10 @@
 `pprof-it` is a convenient wrapper to `pprof` that makes it easy to capture
 CPU and memory profiles of node programs.
 
+(Technically, `pprof-it` uses [DataDog's fork](https://github.com/datadog/pprof-nodejs)
+of `pprof-node`, as it supports newer versions of node and includes prebuilds
+for many more platforms).
+
 ## Usage
 
 To use `pprof-it`, you need to pass `--require pprof-it` to node.
@@ -21,6 +25,17 @@ $ npx --node-arg="--require pprof-it" <executable name>
 
 # Executables via yarn (usually)
 $ node --require pprof-it $(yarn bin <executable name>)
+```
+
+To view the profiles, you can use [SpeedScope](https://www.speedscope.app/)
+for a quick and easy view, or use the [`pprof` utility](https://github.com/google/pprof)
+for more info, like:
+
+```sh
+# CLI interface
+$ pprof pprof-time-10503.pb.gz
+# Browser interface
+$ pprof -http=: pprof-time-10503.pb.gz
 ```
 
 ## Options

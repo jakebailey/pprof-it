@@ -5,7 +5,7 @@ CPU and memory profiles of node programs.
 
 (Technically, `pprof-it` uses [DataDog's fork](https://github.com/datadog/pprof-nodejs)
 of `pprof-node`, as it supports newer versions of node and includes prebuilds
-for many more platforms).
+for many more platforms.)
 
 ## Usage
 

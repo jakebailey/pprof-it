@@ -103,9 +103,9 @@ namespace Options {
         return p;
     }
 
-    const validProfilerNames = new Set(Object.values(ProfilerName));
+    const allProfilers = new Set(Object.values(ProfilerName));
     function isProfilerName(s: string): s is ProfilerName {
-        return validProfilerNames.has(s as any);
+        return allProfilers.has(s as any);
     }
 
     function parseEnvProfilers(envName: string): Set<ProfilerName> | undefined {
@@ -126,7 +126,7 @@ namespace Options {
         return profilers.size ? profilers : undefined;
     }
 
-    export const profilers = parseEnvProfilers('PPROF_PROFILERS') ?? new Set(['heap', 'time']);
+    export const profilers = parseEnvProfilers('PPROF_PROFILERS') ?? allProfilers;
     export const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
     export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
     export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? false;
@@ -151,6 +151,10 @@ function prettierPath(p: string) {
         return p.slice(cwdPrefix.length);
     }
     return p;
+}
+
+function assertNever(x: never): never {
+    throw new Error('Unexpected object: ' + x);
 }
 
 const sanitizedNames = new Map<string, string>();
@@ -259,7 +263,7 @@ for (const x of Options.profilers) {
             profilers.push(new TimeProfiler());
             break;
         default:
-            exitError(`unknown profiler "${x}"`);
+            assertNever(x);
     }
 }
 

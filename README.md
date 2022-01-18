@@ -67,7 +67,7 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
     the profile will be placed in that directory with the default name.
     Defaults to `pprof-heap-${process.id}.pb.gz`.
 
--   `PPROF_HEAP_INTERVAL`: Average number of bytes between heap samples
+-   `PPROF_HEAP_INTERVAL`: Average number of bytes between heap samples.
     Defaults to `512*1024`.
 
 -   `PPROF_HEAP_STACK_DEPTH`: Maximum stack depth for heap samples.
@@ -77,6 +77,9 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,
     the profile will be placed in that directory with the default name.
     Defaults to `pprof-time-${process.id}.pb.gz`.
+
+-   `PPROF_TIME_INTERVAL`: Average number of microsoeconds between time samples.
+    Defaults to `1000`.
 
 -   `PPROF_LOGGING`: Controls `pprof-it`'s logging. May be `off` or `on`.
     Defaults to `on`.

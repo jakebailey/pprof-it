@@ -32,6 +32,7 @@ const enum EnvOpt {
     HeapInterval = 'PPROF_HEAP_INTERVAL',
     HeapStackDepth = 'PPROF_HEAP_STACK_DEPTH',
     TimeOut = 'PPROF_TIME_OUT',
+    TimeInterval = 'PPROF_TIME_INTERVAL',
     Logging = 'PPROF_LOGGING',
 }
 
@@ -226,15 +227,17 @@ class HeapProfiler extends Profiler {
 }
 
 class TimeProfiler extends Profiler {
+    private _timeIntervalMicros: number;
     private _stopFn?: () => perftools.profiles.IProfile;
 
     constructor() {
         super(EnvOpt.TimeOut, 'time');
+        this._timeIntervalMicros = parseEnvInt(EnvOpt.TimeInterval) ?? 1000;
     }
 
     protected _start(): void {
         this._stopFn = pprof.time.start(
-            /* intervalMicros */ undefined,
+            this._timeIntervalMicros,
             /* name */ undefined,
             /* sourceMapper */ undefined,
             lineNumbers

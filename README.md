@@ -81,6 +81,12 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
 -   `PPROF_TIME_INTERVAL`: Average number of microsoeconds between time samples.
     Defaults to `1000`.
 
+-   `PPROF_SIGNAL_EXIT`: Enables handling of exit signals (e.g., SIGINT).
+    May be `off` or `on`. Since signals are handled asynchronously,
+    `pprof-it`'s registration of signal handlers may prevent exiting (as node
+    will no longer attempt to interrupt normal code execution, e.g. quitting
+    on Ctrl+C). Defaults to `on`.
+
 -   `PPROF_LOGGING`: Controls `pprof-it`'s logging. May be `off` or `on`.
     Defaults to `on`.
 

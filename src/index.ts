@@ -135,6 +135,7 @@ namespace Options {
     export const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
     export const timeOut = parseOutputPath('PPROF_TIME_OUT', `pprof-time-${process.pid}.pb.gz`);
     export const timeInterval = parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000;
+    export const signalExit = parseEnvBoolean('PPROF_SIGNAL_EXIT') ?? true;
     export const logging = parseEnvBoolean('PPROF_LOGGING') ?? true;
 }
 
@@ -255,6 +256,14 @@ class TimeProfiler extends Profiler {
     }
 }
 
+function onExit(fn: () => void) {
+    if (Options.signalExit) {
+        signalExit(fn);
+    } else {
+        process.on('exit', fn);
+    }
+}
+
 const profilers: Profiler[] = [];
 
 for (const x of Options.profilers) {
@@ -276,7 +285,7 @@ if (profilers.length) {
         p.start();
     }
 
-    signalExit(() => {
+    onExit(() => {
         log(`Stopping profilers`);
         for (const p of profilers) {
             p.stop();

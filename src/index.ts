@@ -99,10 +99,10 @@ function parseEnvDir(envName: EnvOpt): string | undefined {
     return p;
 }
 
-const logging = parseEnvBoolean(EnvOpt.Logging) ?? true;
+const loggingEnabled = parseEnvBoolean(EnvOpt.Logging) ?? true;
 
 function log(message: string): void {
-    if (logging) {
+    if (loggingEnabled) {
         console.error('pprof-it: ' + message);
     }
 }
@@ -134,10 +134,10 @@ function prettierPath(p: string) {
     return p;
 }
 
-const sanitize = parseEnvBoolean(EnvOpt.Sanitize) ?? false;
+const sanitizeEnabled = parseEnvBoolean(EnvOpt.Sanitize) ?? false;
 const sanitizedNames = new Map<string, string>();
 
-const lineNumbers = parseEnvBoolean(EnvOpt.LineNumbers) ?? false;
+const lineNumbersEnabled = parseEnvBoolean(EnvOpt.LineNumbers) ?? false;
 
 abstract class Profiler {
     private _profilePath: string;
@@ -232,7 +232,7 @@ class TimeProfiler extends Profiler {
             this._timeIntervalMicros,
             /* name */ undefined,
             /* sourceMapper */ undefined,
-            lineNumbers
+            lineNumbersEnabled
         );
     }
 
@@ -270,7 +270,7 @@ if (profilers.length) {
             p.stop();
         }
 
-        if (sanitize) {
+        if (sanitizeEnabled) {
             log('Sanitizing profiles');
             for (const p of profilers) {
                 p.sanitize();

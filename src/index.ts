@@ -27,6 +27,7 @@ const enum EnvOpt {
     Profilers = 'PPROF_PROFILERS',
     Out = 'PPROF_OUT',
     Sanitize = 'PPROF_SANITIZE',
+    LineNumbers = 'PPROF_LINE_NUMBERS',
     HeapOut = 'PPROF_HEAP_OUT',
     HeapInterval = 'PPROF_HEAP_INTERVAL',
     HeapStackDepth = 'PPROF_HEAP_STACK_DEPTH',
@@ -168,6 +169,8 @@ function sanitizePaths(profile: perftools.profiles.IProfile) {
     }
 }
 
+const lineNumbers = parseEnvBoolean(EnvOpt.LineNumbers) ?? false;
+
 abstract class Profiler {
     private _profilePath: string;
     private _profile?: perftools.profiles.IProfile;
@@ -230,7 +233,12 @@ class TimeProfiler extends Profiler {
     }
 
     protected _start(): void {
-        this._stopFn = pprof.time.start();
+        this._stopFn = pprof.time.start(
+            /* intervalMicros */ undefined,
+            /* name */ undefined,
+            /* sourceMapper */ undefined,
+            lineNumbers
+        );
     }
 
     protected _stop(): perftools.profiles.IProfile {

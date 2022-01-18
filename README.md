@@ -55,8 +55,12 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
 -   `PPROF_OUT`: Where to write the profiles. Defaults to the
     current working directory.
 
--   `PPROF_SANITIZE`: Enables sanitization of paths in output profiles. Defaults
-    to `off`.
+-   `PPROF_SANITIZE`: Enables sanitization of paths in output profiles.
+    May be `off` or `on`. Defaults to `off`.
+
+-   `PPROF_LINE_NUMBERS`: Attempts to collect line numbers. This option is
+    experimental, and only works for time profiles.
+    May be `off` or `on`. Defaults to `off`.
 
 -   `PPROF_HEAP_OUT`: Output path for the heap profile, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,

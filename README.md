@@ -55,8 +55,8 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
 -   `PPROF_OUT`: Where to write the profiles. Defaults to the
     current working directory.
 
--   `PPROF_LOGGING`: Controls `pprof-it`'s logging. May be `off` or `on`.
-    Defaults to `on`.
+-   `PPROF_SANITIZE`: Enables sanitization of paths in output profiles. Defaults
+    to `off`.
 
 -   `PPROF_HEAP_OUT`: Output path for the heap profile, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,
@@ -73,3 +73,6 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,
     the profile will be placed in that directory with the default name.
     Defaults to `pprof-time-${process.id}.pb.gz`.
+
+-   `PPROF_LOGGING`: Controls `pprof-it`'s logging. May be `off` or `on`.
+    Defaults to `on`.

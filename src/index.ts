@@ -17,6 +17,7 @@ if (!isPreloading()) {
 }
 
 import * as pprof from '@datadog/pprof';
+import { perftools } from '@datadog/pprof/proto/profile';
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
@@ -25,11 +26,12 @@ import signalExit from 'signal-exit';
 const enum EnvOpt {
     Profilers = 'PPROF_PROFILERS',
     Out = 'PPROF_OUT',
-    Logging = 'PPROF_LOGGING',
+    Sanitize = 'PPROF_SANITIZE',
     HeapOut = 'PPROF_HEAP_OUT',
     HeapInterval = 'PPROF_HEAP_INTERVAL',
     HeapStackDepth = 'PPROF_HEAP_STACK_DEPTH',
     TimeOut = 'PPROF_TIME_OUT',
+    Logging = 'PPROF_LOGGING',
 }
 
 function tryStat(p: string) {
@@ -130,11 +132,45 @@ function prettierPath(p: string) {
     return p;
 }
 
-type Profile = ReturnType<typeof pprof.heap.profile>;
+const sanitize = parseEnvBoolean(EnvOpt.Sanitize) ?? false;
+
+const sanitizedNames = new Map<string, string>();
+
+function sanitizePaths(profile: perftools.profiles.IProfile) {
+    const ids = new Set<number>();
+
+    // All samples/locations are rooted at functions, which contain
+    // the string IDs of the filename.
+    for (const f of profile.function ?? []) {
+        const filename = f.filename;
+        if (filename !== undefined) {
+            if (typeof filename === 'number') {
+                ids.add(filename);
+            } else {
+                ids.add(filename.toInt());
+            }
+        }
+    }
+
+    assert(profile.stringTable);
+    for (const index of ids.values()) {
+        const p = profile.stringTable[index];
+        // Paths to the parts of the standard library that are implemented
+        // in JavaScript are relative; other paths are absolute.
+        if (p && path.isAbsolute(p)) {
+            let sanitized = sanitizedNames.get(p);
+            if (sanitized === undefined) {
+                sanitized = `SANITIZED_${sanitizedNames.size}`;
+                sanitizedNames.set(p, sanitized);
+            }
+            profile.stringTable[index] = sanitized;
+        }
+    }
+}
 
 abstract class Profiler {
     private _profilePath: string;
-    private _profile?: Profile;
+    private _profile?: perftools.profiles.IProfile;
 
     constructor(pathEnvName: EnvOpt, private _name: string) {
         this._profilePath = parseOutputPath(pathEnvName, `pprof-${_name}-${process.pid}.pb.gz`);
@@ -147,7 +183,7 @@ abstract class Profiler {
         this._start();
     }
 
-    protected abstract _stop(): Profile;
+    protected abstract _stop(): perftools.profiles.IProfile;
 
     stop(): void {
         log(`Stopping ${this._name} profile`);
@@ -156,6 +192,11 @@ abstract class Profiler {
 
     write(): void {
         assert(this._profile);
+
+        if (sanitize) {
+            sanitizePaths(this._profile);
+        }
+
         log(`Writing ${this._name} profile to ${prettierPath(this._profilePath)}`);
         const buffer = pprof.encodeSync(this._profile);
         fs.writeFileSync(this._profilePath, buffer);
@@ -176,13 +217,13 @@ class HeapProfiler extends Profiler {
         pprof.heap.start(this._heapIntervalBytes, this._heapStackDepth);
     }
 
-    protected _stop(): Profile {
+    protected _stop(): perftools.profiles.IProfile {
         return pprof.heap.profile();
     }
 }
 
 class TimeProfiler extends Profiler {
-    private _stopFn?: () => Profile;
+    private _stopFn?: () => perftools.profiles.IProfile;
 
     constructor() {
         super(EnvOpt.TimeOut, 'time');
@@ -192,7 +233,7 @@ class TimeProfiler extends Profiler {
         this._stopFn = pprof.time.start();
     }
 
-    protected _stop(): Profile {
+    protected _stop(): perftools.profiles.IProfile {
         assert(this._stopFn);
         return this._stopFn();
     }

@@ -37,9 +37,9 @@ for more info, like:
 
 ```sh
 # CLI interface
-$ pprof pprof-time-10503.pb.gz
+$ go run github.com/google/pprof@latest pprof-time-10503.pb.gz
 # Browser interface
-$ pprof -http=: pprof-time-10503.pb.gz
+$ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
 ```
 
 ## Options

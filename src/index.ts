@@ -23,106 +23,102 @@ import fs from 'fs';
 import path from 'path';
 import signalExit from 'signal-exit';
 
-const enum EnvOpt {
-    Profilers = 'PPROF_PROFILERS',
-    Out = 'PPROF_OUT',
-    Sanitize = 'PPROF_SANITIZE',
-    LineNumbers = 'PPROF_LINE_NUMBERS',
-    HeapOut = 'PPROF_HEAP_OUT',
-    HeapInterval = 'PPROF_HEAP_INTERVAL',
-    HeapStackDepth = 'PPROF_HEAP_STACK_DEPTH',
-    TimeOut = 'PPROF_TIME_OUT',
-    TimeInterval = 'PPROF_TIME_INTERVAL',
-    Logging = 'PPROF_LOGGING',
-}
+namespace Options {
+    function parseEnvInt(envName: string): number | undefined {
+        const v = process.env[envName];
+        if (!v) {
+            return undefined;
+        }
 
-function tryStat(p: string) {
-    try {
-        return fs.statSync(p);
-    } catch {
-        return undefined;
-    }
-}
-
-function parseEnvInt(envName: EnvOpt): number | undefined {
-    const v = process.env[envName];
-    if (!v) {
-        return undefined;
-    }
-
-    const x = parseInt(v);
-    if (isNaN(x)) {
-        exitError(`invalid value ${envName}=${v}`);
-    }
-    return x;
-}
-
-function parseEnvBoolean(envName: EnvOpt): boolean | undefined {
-    const v = process.env[envName];
-    if (!v) {
-        return undefined;
-    }
-
-    switch (v.toLowerCase()) {
-        case '1':
-        case 'true':
-        case 'yes':
-        case 'on':
-            return true;
-        case '0':
-        case 'false':
-        case 'no':
-        case 'off':
-            return false;
-        default:
+        const x = parseInt(v);
+        if (isNaN(x)) {
             exitError(`invalid value ${envName}=${v}`);
+        }
+        return x;
     }
+
+    function parseEnvBoolean(envName: string): boolean | undefined {
+        const v = process.env[envName];
+        if (!v) {
+            return undefined;
+        }
+
+        switch (v.toLowerCase()) {
+            case '1':
+            case 'true':
+            case 'yes':
+            case 'on':
+                return true;
+            case '0':
+            case 'false':
+            case 'no':
+            case 'off':
+                return false;
+            default:
+                exitError(`invalid value ${envName}=${v}`);
+        }
+    }
+
+    function tryStat(p: string) {
+        try {
+            return fs.statSync(p);
+        } catch {
+            return undefined;
+        }
+    }
+
+    function assertExistsAndDir(p: string) {
+        const stat = tryStat(p);
+        if (!stat) {
+            exitError(`${p} does not exist`);
+        }
+        if (!stat.isDirectory()) {
+            exitError(`${p} is not a directory`);
+        }
+    }
+
+    function parseEnvDir(envName: string): string | undefined {
+        const p = process.env[envName];
+        if (!p) {
+            return undefined;
+        }
+
+        assertExistsAndDir(p);
+        return p;
+    }
+
+    function parseOutputPath(envName: string, defaultFilename: string): string {
+        const p = path.resolve(outDir, process.env[envName] || '');
+
+        if (tryStat(p)?.isDirectory()) {
+            return path.join(p, defaultFilename);
+        }
+
+        assertExistsAndDir(path.dirname(p));
+        return p;
+    }
+
+    function parseEnvSet(envName: string, defaultValue: string): Set<string> {
+        const v = process.env[envName] || defaultValue;
+        return new Set(v.split(',').filter((x) => x));
+    }
+
+    export const profilerNames = parseEnvSet('PPROF_PROFILERS', 'heap,time');
+    export const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
+    export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
+    export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? false;
+    export const heapOut = parseOutputPath('PPROF_HEAP_OUT', `pprof-heap-${process.pid}.pb.gz`);
+    export const heapIntervalBytes = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
+    export const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
+    export const timeOut = parseOutputPath('PPROF_TIME_OUT', `pprof-time-${process.pid}.pb.gz`);
+    export const timeIntervalMicros = parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000;
+    export const logging = parseEnvBoolean('PPROF_LOGGING') ?? true;
 }
-
-function assertExistsAndDir(p: string) {
-    const stat = tryStat(p);
-    if (!stat) {
-        exitError(`${p} does not exist`);
-    }
-    if (!stat.isDirectory()) {
-        exitError(`${p} is not a directory`);
-    }
-}
-
-function parseEnvDir(envName: EnvOpt): string | undefined {
-    const p = process.env[envName];
-    if (!p) {
-        return undefined;
-    }
-
-    assertExistsAndDir(p);
-    return p;
-}
-
-const loggingEnabled = parseEnvBoolean(EnvOpt.Logging) ?? true;
 
 function log(message: string): void {
-    if (loggingEnabled) {
+    if (Options.logging) {
         console.error('pprof-it: ' + message);
     }
-}
-
-const outDir = parseEnvDir(EnvOpt.Out) ?? process.cwd();
-
-function parseOutputPath(envName: EnvOpt, defaultFilename: string): string {
-    const p = path.resolve(outDir, process.env[envName] || '');
-
-    if (tryStat(p)?.isDirectory()) {
-        return path.join(p, defaultFilename);
-    }
-
-    assertExistsAndDir(path.dirname(p));
-    return p;
-}
-
-function parseEnvSet(envName: EnvOpt, defaultValue: string): Set<string> {
-    const v = process.env[envName] || defaultValue;
-    return new Set(v.split(',').filter((x) => x));
 }
 
 const cwdPrefix = process.cwd() + path.sep;
@@ -134,18 +130,12 @@ function prettierPath(p: string) {
     return p;
 }
 
-const sanitizeEnabled = parseEnvBoolean(EnvOpt.Sanitize) ?? false;
 const sanitizedNames = new Map<string, string>();
 
-const lineNumbersEnabled = parseEnvBoolean(EnvOpt.LineNumbers) ?? false;
-
 abstract class Profiler {
-    private _profilePath: string;
     private _profile?: perftools.profiles.IProfile;
 
-    constructor(pathEnvName: EnvOpt, private _name: string) {
-        this._profilePath = parseOutputPath(pathEnvName, `pprof-${_name}-${process.pid}.pb.gz`);
-    }
+    constructor(private _name: string, private _profilePath: string) {}
 
     abstract start(): void;
 
@@ -200,17 +190,12 @@ abstract class Profiler {
 }
 
 class HeapProfiler extends Profiler {
-    private _heapIntervalBytes: number;
-    private _heapStackDepth: number;
-
     constructor() {
-        super(EnvOpt.HeapOut, 'heap');
-        this._heapIntervalBytes = parseEnvInt(EnvOpt.HeapInterval) ?? 512 * 1024;
-        this._heapStackDepth = parseEnvInt(EnvOpt.HeapStackDepth) ?? 64;
+        super('heap', Options.heapOut);
     }
 
     start(): void {
-        pprof.heap.start(this._heapIntervalBytes, this._heapStackDepth);
+        pprof.heap.start(Options.heapIntervalBytes, Options.heapStackDepth);
     }
 
     protected _stop(): perftools.profiles.IProfile {
@@ -219,20 +204,18 @@ class HeapProfiler extends Profiler {
 }
 
 class TimeProfiler extends Profiler {
-    private _timeIntervalMicros: number;
     private _stopFn?: () => perftools.profiles.IProfile;
 
     constructor() {
-        super(EnvOpt.TimeOut, 'time');
-        this._timeIntervalMicros = parseEnvInt(EnvOpt.TimeInterval) ?? 1000;
+        super('heap', Options.timeOut);
     }
 
     start(): void {
         this._stopFn = pprof.time.start(
-            this._timeIntervalMicros,
+            Options.timeIntervalMicros,
             /* name */ undefined,
             /* sourceMapper */ undefined,
-            lineNumbersEnabled
+            Options.lineNumbers
         );
     }
 
@@ -243,9 +226,8 @@ class TimeProfiler extends Profiler {
 }
 
 const profilers: Profiler[] = [];
-const profilerNames = parseEnvSet(EnvOpt.Profilers, 'heap,time');
 
-for (const x of profilerNames) {
+for (const x of Options.profilerNames) {
     switch (x) {
         case 'heap':
             profilers.push(new HeapProfiler());
@@ -259,7 +241,7 @@ for (const x of profilerNames) {
 }
 
 if (profilers.length) {
-    log(`Starting profilers (${[...profilerNames.values()].join(', ')})`);
+    log(`Starting profilers (${[...Options.profilerNames.values()].join(', ')})`);
     for (const p of profilers) {
         p.start();
     }
@@ -270,7 +252,7 @@ if (profilers.length) {
             p.stop();
         }
 
-        if (sanitizeEnabled) {
+        if (Options.sanitize) {
             log('Sanitizing profiles');
             for (const p of profilers) {
                 p.sanitize();

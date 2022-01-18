@@ -158,6 +158,15 @@ function assertNever(x: never): never {
 }
 
 const sanitizedNames = new Map<string, string>();
+function sanitize(s: string): string {
+    let sanitized = sanitizedNames.get(s);
+    if (sanitized === undefined) {
+        sanitized = `SANITIZED_${sanitizedNames.size}`;
+        log(`Sanitizing "${s}" to "${sanitized}"`);
+        sanitizedNames.set(s, sanitized);
+    }
+    return sanitized;
+}
 
 abstract class Profiler {
     private _profile?: perftools.profiles.IProfile;
@@ -197,13 +206,7 @@ abstract class Profiler {
             // Paths to the parts of the standard library that are implemented
             // in JavaScript are relative; other paths are absolute.
             if (p && path.isAbsolute(p)) {
-                let sanitized = sanitizedNames.get(p);
-                if (sanitized === undefined) {
-                    sanitized = `SANITIZED_${sanitizedNames.size}`;
-                    log(`Sanitizing "${p}" to "${sanitized}"`);
-                    sanitizedNames.set(p, sanitized);
-                }
-                this._profile.stringTable[index] = sanitized;
+                this._profile.stringTable[index] = sanitize(p);
             }
         }
     }

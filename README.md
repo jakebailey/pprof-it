@@ -28,6 +28,9 @@ $ npx --node-arg="--require pprof-it" <executable name>
 $ node --require pprof-it $(yarn bin <executable name>)
 ```
 
+The `NODE_OPTIONS` environment variable may be used to pass `--require`, but
+is not recommended as more than one process may emit profiles.
+
 By default, `pprof-it` will produce both heap and time profiles and
 write them to the current directory.
 

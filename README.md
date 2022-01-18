@@ -83,3 +83,10 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
 
 -   `PPROF_LOGGING`: Controls `pprof-it`'s logging. May be `off` or `on`.
     Defaults to `on`.
+
+On Windows, where setting environment variables temporarily is less convenient,
+it's simplest to just use `cross-env` to handle this:
+
+```ps1
+$ npx cross-env PPROF_OUT=C:\foo\bar node --require pprof-it path\to\script.js
+```

@@ -13,7 +13,7 @@ function exitError(message: string): never {
 }
 
 if (!isPreloading()) {
-    exitError('PPROF must be required using the --require flag');
+    exitError('pprof-it must be required using the --require flag');
 }
 
 import * as pprof from '@datadog/pprof';

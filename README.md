@@ -9,8 +9,9 @@ for many more platforms.)
 
 ## Usage
 
-To use `pprof-it`, you need to pass `--require pprof-it` to node.
-Depending on how your program is run, this can be done one of a few ways:
+To use `pprof-it`, install the package, then pass `--require pprof-it` to node
+when executing your program. Depending on how your program is run, this can be
+achieved one of a few ways:
 
 ```sh
 # Directly running with node
@@ -27,6 +28,9 @@ $ npx --node-arg="--require pprof-it" <executable name>
 $ node --require pprof-it $(yarn bin <executable name>)
 ```
 
+By default, `pprof-it` will produce both heap and time profiles and
+write them to the current directory.
+
 To view the profiles, you can use [SpeedScope](https://www.speedscope.app/)
 for a quick and easy view, or use the [`pprof` utility](https://github.com/google/pprof)
 for more info, like:
@@ -40,9 +44,7 @@ $ pprof -http=: pprof-time-10503.pb.gz
 
 ## Options
 
-By default, `pprof-it` will produce both heap and time profiles and
-write them to the current directory. `pprof-it`'s behavior can be
-configured via the following environment variables.
+`pprof-it`'s behavior can be configured via the following environment variables.
 
 -   `PPROF_PROFILERS`: Which profilers to run, separated by commas. The
     currently available profilers are `heap` and `time`. Defaults to `heap,time`.

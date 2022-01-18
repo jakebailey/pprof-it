@@ -147,11 +147,7 @@ abstract class Profiler {
         this._profilePath = parseOutputPath(pathEnvName, `pprof-${_name}-${process.pid}.pb.gz`);
     }
 
-    protected abstract _start(): void;
-
-    start(): void {
-        this._start();
-    }
+    abstract start(): void;
 
     protected abstract _stop(): perftools.profiles.IProfile;
 
@@ -212,7 +208,7 @@ class HeapProfiler extends Profiler {
         this._heapStackDepth = parseEnvInt(EnvOpt.HeapStackDepth) ?? 64;
     }
 
-    protected _start(): void {
+    start(): void {
         pprof.heap.start(this._heapIntervalBytes, this._heapStackDepth);
     }
 
@@ -230,7 +226,7 @@ class TimeProfiler extends Profiler {
         this._timeIntervalMicros = parseEnvInt(EnvOpt.TimeInterval) ?? 1000;
     }
 
-    protected _start(): void {
+    start(): void {
         this._stopFn = pprof.time.start(
             this._timeIntervalMicros,
             /* name */ undefined,

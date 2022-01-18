@@ -2,6 +2,7 @@
     "extends": "@tsconfig/node12/tsconfig.json",
     "compilerOptions": {
         "outDir": "./dist",
+        "declaration": true,
         "noImplicitReturns": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,

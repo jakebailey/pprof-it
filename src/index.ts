@@ -108,10 +108,10 @@ namespace Options {
     export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
     export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? false;
     export const heapOut = parseOutputPath('PPROF_HEAP_OUT', `pprof-heap-${process.pid}.pb.gz`);
-    export const heapIntervalBytes = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
+    export const heapInterval = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
     export const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
     export const timeOut = parseOutputPath('PPROF_TIME_OUT', `pprof-time-${process.pid}.pb.gz`);
-    export const timeIntervalMicros = parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000;
+    export const timeInterval = parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000;
     export const logging = parseEnvBoolean('PPROF_LOGGING') ?? true;
 }
 
@@ -195,7 +195,7 @@ class HeapProfiler extends Profiler {
     }
 
     start(): void {
-        pprof.heap.start(Options.heapIntervalBytes, Options.heapStackDepth);
+        pprof.heap.start(Options.heapInterval, Options.heapStackDepth);
     }
 
     protected _stop(): perftools.profiles.IProfile {
@@ -212,7 +212,7 @@ class TimeProfiler extends Profiler {
 
     start(): void {
         this._stopFn = pprof.time.start(
-            Options.timeIntervalMicros,
+            Options.timeInterval,
             /* name */ undefined,
             /* sourceMapper */ undefined,
             Options.lineNumbers

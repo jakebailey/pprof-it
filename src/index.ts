@@ -129,7 +129,7 @@ namespace Options {
     export const profilers = parseEnvProfilers('PPROF_PROFILERS') ?? allProfilers;
     export const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
     export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
-    export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? false;
+    export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? true;
     export const heapOut = parseOutputPath('PPROF_HEAP_OUT', `pprof-heap-${process.pid}.pb.gz`);
     export const heapInterval = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
     export const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;

@@ -59,8 +59,8 @@ $ go run github.com/google/pprof@latest -http=: pprof-time-10503.pb.gz
     May be `off` or `on`. Defaults to `off`.
 
 -   `PPROF_LINE_NUMBERS`: Attempts to collect line numbers. This option is
-    experimental, and only works for time profiles.
-    May be `off` or `on`. Defaults to `off`.
+    documented as experimental upstream (but seems to work), and only works
+    for time profiles. May be `off` or `on`. Defaults to `on`.
 
 -   `PPROF_HEAP_OUT`: Output path for the heap profile, if enabled. If
     this path is relative, it will be relative to `PPROF_OUT`. If a directory,

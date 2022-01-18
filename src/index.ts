@@ -162,7 +162,8 @@ abstract class Profiler {
 
         // All samples/locations are rooted at functions, which contain
         // the string IDs of the filename.
-        for (const f of this._profile.function ?? []) {
+        assert(this._profile.function);
+        for (const f of this._profile.function) {
             const filename = f.filename;
             if (filename !== undefined) {
                 if (typeof filename === 'number') {

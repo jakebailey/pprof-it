@@ -42,7 +42,15 @@ function tryStat(p: string) {
 
 function parseEnvInt(envName: EnvOpt): number | undefined {
     const v = process.env[envName];
-    return v ? parseInt(v) : undefined;
+    if (!v) {
+        return undefined;
+    }
+
+    const x = parseInt(v);
+    if (isNaN(x)) {
+        exitError(`invalid value ${envName}=${v}`);
+    }
+    return x;
 }
 
 function parseEnvBoolean(envName: EnvOpt): boolean | undefined {

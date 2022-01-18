@@ -103,7 +103,7 @@ const logging = parseEnvBoolean(EnvOpt.Logging) ?? true;
 
 function log(message: string): void {
     if (logging) {
-        console.error(message);
+        console.error('pprof-it: ' + message);
     }
 }
 
@@ -135,41 +135,7 @@ function prettierPath(p: string) {
 }
 
 const sanitize = parseEnvBoolean(EnvOpt.Sanitize) ?? false;
-
 const sanitizedNames = new Map<string, string>();
-
-function sanitizePaths(profile: perftools.profiles.IProfile) {
-    const ids = new Set<number>();
-
-    // All samples/locations are rooted at functions, which contain
-    // the string IDs of the filename.
-    for (const f of profile.function ?? []) {
-        const filename = f.filename;
-        if (filename !== undefined) {
-            if (typeof filename === 'number') {
-                ids.add(filename);
-            } else {
-                ids.add(filename.toInt());
-            }
-        }
-    }
-
-    assert(profile.stringTable);
-    for (const index of ids.values()) {
-        const p = profile.stringTable[index];
-        // Paths to the parts of the standard library that are implemented
-        // in JavaScript are relative; other paths are absolute.
-        if (p && path.isAbsolute(p)) {
-            let sanitized = sanitizedNames.get(p);
-            if (sanitized === undefined) {
-                sanitized = `SANITIZED_${sanitizedNames.size}`;
-                log(`Sanitizing "${p}" to "${sanitized}"`);
-                sanitizedNames.set(p, sanitized);
-            }
-            profile.stringTable[index] = sanitized;
-        }
-    }
-}
 
 const lineNumbers = parseEnvBoolean(EnvOpt.LineNumbers) ?? false;
 
@@ -184,24 +150,52 @@ abstract class Profiler {
     protected abstract _start(): void;
 
     start(): void {
-        log(`Starting ${this._name} profile`);
         this._start();
     }
 
     protected abstract _stop(): perftools.profiles.IProfile;
 
     stop(): void {
-        log(`Stopping ${this._name} profile`);
         this._profile = this._stop();
+    }
+
+    sanitize(): void {
+        assert(this._profile);
+
+        const ids = new Set<number>();
+
+        // All samples/locations are rooted at functions, which contain
+        // the string IDs of the filename.
+        for (const f of this._profile.function ?? []) {
+            const filename = f.filename;
+            if (filename !== undefined) {
+                if (typeof filename === 'number') {
+                    ids.add(filename);
+                } else {
+                    ids.add(filename.toInt());
+                }
+            }
+        }
+
+        assert(this._profile.stringTable);
+        for (const index of ids.values()) {
+            const p = this._profile.stringTable[index];
+            // Paths to the parts of the standard library that are implemented
+            // in JavaScript are relative; other paths are absolute.
+            if (p && path.isAbsolute(p)) {
+                let sanitized = sanitizedNames.get(p);
+                if (sanitized === undefined) {
+                    sanitized = `SANITIZED_${sanitizedNames.size}`;
+                    log(`Sanitizing "${p}" to "${sanitized}"`);
+                    sanitizedNames.set(p, sanitized);
+                }
+                this._profile.stringTable[index] = sanitized;
+            }
+        }
     }
 
     write(): void {
         assert(this._profile);
-
-        if (sanitize) {
-            sanitizePaths(this._profile);
-        }
-
         log(`Writing ${this._name} profile to ${prettierPath(this._profilePath)}`);
         const buffer = pprof.encodeSync(this._profile);
         fs.writeFileSync(this._profilePath, buffer);
@@ -252,8 +246,9 @@ class TimeProfiler extends Profiler {
 }
 
 const profilers: Profiler[] = [];
+const profilerNames = parseEnvSet(EnvOpt.Profilers, 'heap,time');
 
-for (const x of parseEnvSet(EnvOpt.Profilers, 'heap,time')) {
+for (const x of profilerNames) {
     switch (x) {
         case 'heap':
             profilers.push(new HeapProfiler());
@@ -267,13 +262,22 @@ for (const x of parseEnvSet(EnvOpt.Profilers, 'heap,time')) {
 }
 
 if (profilers.length) {
+    log(`Starting profilers (${[...profilerNames.values()].join(', ')})`);
     for (const p of profilers) {
         p.start();
     }
 
     signalExit(() => {
+        log(`Stopping profilers`);
         for (const p of profilers) {
             p.stop();
+        }
+
+        if (sanitize) {
+            log('Sanitizing profiles');
+            for (const p of profilers) {
+                p.sanitize();
+            }
         }
 
         for (const p of profilers) {

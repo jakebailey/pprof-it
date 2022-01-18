@@ -163,6 +163,7 @@ function sanitizePaths(profile: perftools.profiles.IProfile) {
             let sanitized = sanitizedNames.get(p);
             if (sanitized === undefined) {
                 sanitized = `SANITIZED_${sanitizedNames.size}`;
+                log(`Sanitizing "${p}" to "${sanitized}"`);
                 sanitizedNames.set(p, sanitized);
             }
             profile.stringTable[index] = sanitized;

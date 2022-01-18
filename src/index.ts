@@ -23,6 +23,11 @@ import fs from 'fs';
 import path from 'path';
 import signalExit from 'signal-exit';
 
+enum ProfilerName {
+    Heap = 'heap',
+    Time = 'time',
+}
+
 namespace Options {
     function parseEnvInt(envName: string): number | undefined {
         const v = process.env[envName];
@@ -98,12 +103,30 @@ namespace Options {
         return p;
     }
 
-    function parseEnvSet(envName: string, defaultValue: string): Set<string> {
-        const v = process.env[envName] || defaultValue;
-        return new Set(v.split(',').filter((x) => x));
+    const validProfilerNames = new Set(Object.values(ProfilerName));
+    function isProfilerName(s: string): s is ProfilerName {
+        return validProfilerNames.has(s as any);
     }
 
-    export const profilerNames = parseEnvSet('PPROF_PROFILERS', 'heap,time');
+    function parseEnvProfilers(envName: string): Set<ProfilerName> | undefined {
+        const v = process.env[envName];
+        if (!v) {
+            return undefined;
+        }
+
+        const profilers = new Set<ProfilerName>();
+        for (const x of v.split(',').filter((x) => x)) {
+            if (isProfilerName(x)) {
+                profilers.add(x);
+            } else {
+                exitError(`unknown profiler "${x}"`);
+            }
+        }
+
+        return profilers.size ? profilers : undefined;
+    }
+
+    export const profilers = parseEnvProfilers('PPROF_PROFILERS') ?? new Set(['heap', 'time']);
     export const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
     export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
     export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? false;
@@ -135,7 +158,7 @@ const sanitizedNames = new Map<string, string>();
 abstract class Profiler {
     private _profile?: perftools.profiles.IProfile;
 
-    constructor(private _name: string, private _profilePath: string) {}
+    constructor(private _name: ProfilerName, private _profilePath: string) {}
 
     abstract start(): void;
 
@@ -191,7 +214,7 @@ abstract class Profiler {
 
 class HeapProfiler extends Profiler {
     constructor() {
-        super('heap', Options.heapOut);
+        super(ProfilerName.Heap, Options.heapOut);
     }
 
     start(): void {
@@ -207,7 +230,7 @@ class TimeProfiler extends Profiler {
     private _stopFn?: () => perftools.profiles.IProfile;
 
     constructor() {
-        super('heap', Options.timeOut);
+        super(ProfilerName.Time, Options.timeOut);
     }
 
     start(): void {
@@ -227,21 +250,21 @@ class TimeProfiler extends Profiler {
 
 const profilers: Profiler[] = [];
 
-for (const x of Options.profilerNames) {
+for (const x of Options.profilers) {
     switch (x) {
-        case 'heap':
+        case ProfilerName.Heap:
             profilers.push(new HeapProfiler());
             break;
-        case 'time':
+        case ProfilerName.Time:
             profilers.push(new TimeProfiler());
             break;
         default:
-            exitError(`unknown profiler ${x}`);
+            exitError(`unknown profiler "${x}"`);
     }
 }
 
 if (profilers.length) {
-    log(`Starting profilers (${[...Options.profilerNames.values()].join(', ')})`);
+    log(`Starting profilers (${[...Options.profilers.values()].join(', ')})`);
     for (const p of profilers) {
         p.start();
     }

@@ -1,21 +1,3 @@
-function isPreloading(): boolean {
-    if ((module as any).isPreloading !== undefined) {
-        // >=v14.17.0
-        return (module as any).isPreloading;
-    }
-
-    return module.parent?.id === 'internal/preload';
-}
-
-function exitError(message: string): never {
-    console.error('pprof-it: ' + message);
-    process.exit(1);
-}
-
-if (!isPreloading()) {
-    exitError('pprof-it must be required using the --require flag');
-}
-
 import * as pprof from '@datadog/pprof';
 import { perftools } from '@datadog/pprof/proto/profile';
 import assert from 'assert';
@@ -37,7 +19,7 @@ namespace Options {
 
         const x = parseInt(v);
         if (isNaN(x)) {
-            exitError(`invalid value ${envName}=${v}`);
+            throw new Error(`invalid value ${envName}=${v}`);
         }
         return x;
     }
@@ -60,7 +42,7 @@ namespace Options {
             case 'off':
                 return false;
             default:
-                exitError(`invalid value ${envName}=${v}`);
+                throw new Error(`invalid value ${envName}=${v}`);
         }
     }
 
@@ -75,10 +57,10 @@ namespace Options {
     function assertExistsAndDir(p: string) {
         const stat = tryStat(p);
         if (!stat) {
-            exitError(`${p} does not exist`);
+            throw new Error(`${p} does not exist`);
         }
         if (!stat.isDirectory()) {
-            exitError(`${p} is not a directory`);
+            throw new Error(`${p} is not a directory`);
         }
     }
 
@@ -93,7 +75,7 @@ namespace Options {
     }
 
     function parseOutputPath(envName: string, defaultFilename: string): string {
-        const p = path.resolve(outDir, process.env[envName] || '');
+        const p = path.resolve(outDir(), process.env[envName] || '');
 
         if (tryStat(p)?.isDirectory()) {
             return path.join(p, defaultFilename);
@@ -119,28 +101,39 @@ namespace Options {
             if (isProfilerName(x)) {
                 profilers.add(x);
             } else {
-                exitError(`unknown profiler "${x}"`);
+                throw new Error(`unknown profiler "${x}"`);
             }
         }
 
         return profilers.size ? profilers : undefined;
     }
 
-    export const profilers = parseEnvProfilers('PPROF_PROFILERS') ?? allProfilers;
-    export const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
-    export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
-    export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? true;
-    export const heapOut = parseOutputPath('PPROF_HEAP_OUT', `pprof-heap-${process.pid}.pb.gz`);
-    export const heapInterval = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
-    export const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
-    export const timeOut = parseOutputPath('PPROF_TIME_OUT', `pprof-time-${process.pid}.pb.gz`);
-    export const timeInterval = parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000;
-    export const signalExit = parseEnvBoolean('PPROF_SIGNAL_EXIT') ?? true;
-    export const logging = parseEnvBoolean('PPROF_LOGGING') ?? true;
+    const unset = Symbol('unset');
+    function lazy<T>(fn: () => T): () => T {
+        let v: T | typeof unset = unset;
+        return () => {
+            if (v === unset) {
+                v = fn();
+            }
+            return v;
+        };
+    }
+
+    export const profilers = lazy(() => parseEnvProfilers('PPROF_PROFILERS') ?? allProfilers);
+    export const outDir = lazy(() => parseEnvDir('PPROF_OUT') ?? process.cwd());
+    export const sanitize = lazy(() => parseEnvBoolean('PPROF_SANITIZE') ?? false);
+    export const lineNumbers = lazy(() => parseEnvBoolean('PPROF_LINE_NUMBERS') ?? true);
+    export const heapOut = lazy(() => parseOutputPath('PPROF_HEAP_OUT', `pprof-heap-${process.pid}.pb.gz`));
+    export const heapInterval = lazy(() => parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024);
+    export const heapStackDepth = lazy(() => parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64);
+    export const timeOut = lazy(() => parseOutputPath('PPROF_TIME_OUT', `pprof-time-${process.pid}.pb.gz`));
+    export const timeInterval = lazy(() => parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000);
+    export const signalExit = lazy(() => parseEnvBoolean('PPROF_SIGNAL_EXIT') ?? true);
+    export const logging = lazy(() => parseEnvBoolean('PPROF_LOGGING') ?? true);
 }
 
 function log(message: string): void {
-    if (Options.logging) {
+    if (Options.logging()) {
         console.error('pprof-it: ' + message);
     }
 }
@@ -222,11 +215,11 @@ abstract class Profiler {
 
 class HeapProfiler extends Profiler {
     constructor() {
-        super(ProfilerName.Heap, Options.heapOut);
+        super(ProfilerName.Heap, Options.heapOut());
     }
 
     start(): void {
-        pprof.heap.start(Options.heapInterval, Options.heapStackDepth);
+        pprof.heap.start(Options.heapInterval(), Options.heapStackDepth());
     }
 
     protected _stop(): perftools.profiles.IProfile {
@@ -238,15 +231,15 @@ class TimeProfiler extends Profiler {
     private _stopFn?: () => perftools.profiles.IProfile;
 
     constructor() {
-        super(ProfilerName.Time, Options.timeOut);
+        super(ProfilerName.Time, Options.timeOut());
     }
 
     start(): void {
         this._stopFn = pprof.time.start(
-            Options.timeInterval,
+            Options.timeInterval(),
             /* name */ undefined,
             /* sourceMapper */ undefined,
-            Options.lineNumbers
+            Options.lineNumbers()
         );
     }
 
@@ -256,42 +249,77 @@ class TimeProfiler extends Profiler {
     }
 }
 
-function onExit(fn: () => void) {
-    if (Options.signalExit) {
-        signalExit(fn);
+function onExit(fn: () => void): () => void {
+    if (Options.signalExit()) {
+        return signalExit(fn);
     } else {
-        process.on('exit', fn);
+        let skip = false;
+        process.on('exit', () => {
+            if (!skip) {
+                fn();
+            }
+        });
+        return () => {
+            skip = true;
+        };
     }
 }
 
-const profilers: Profiler[] = [];
+let started = false;
 
-for (const x of Options.profilers) {
-    switch (x) {
-        case ProfilerName.Heap:
-            profilers.push(new HeapProfiler());
-            break;
-        case ProfilerName.Time:
-            profilers.push(new TimeProfiler());
-            break;
-        default:
-            assertNever(x);
+/**
+ * Starts a pprof profile, with options set from the environment.
+ * If profiling is already running, this function will throw.
+ * @param stopOnExit Whether or not to register exit handlers.
+ * @returns A stop function that ends the profile.
+ */
+export function start(stopOnExit = true): () => void {
+    if (started) {
+        throw new Error('pprof-it already started');
     }
-}
 
-if (profilers.length) {
-    log(`Starting profilers (${[...Options.profilers.values()].join(', ')})`);
+    const profilers: Profiler[] = [];
+
+    for (const x of Options.profilers()) {
+        switch (x) {
+            case ProfilerName.Heap:
+                profilers.push(new HeapProfiler());
+                break;
+            case ProfilerName.Time:
+                profilers.push(new TimeProfiler());
+                break;
+            default:
+                assertNever(x);
+        }
+    }
+
+    if (profilers.length === 0) {
+        return () => {
+            /* noop */
+        };
+    }
+
+    log(`Starting profilers (${[...Options.profilers().values()].join(', ')})`);
     for (const p of profilers) {
         p.start();
     }
 
-    onExit(() => {
+    started = true;
+
+    let stopped = false;
+    let unregisterAtExit: (() => void) | undefined;
+
+    const stop = (calledFromExit = false) => {
+        if (stopped) {
+            return;
+        }
+
         log(`Stopping profilers`);
         for (const p of profilers) {
             p.stop();
         }
 
-        if (Options.sanitize) {
+        if (Options.sanitize()) {
             log('Sanitizing profiles');
             for (const p of profilers) {
                 p.sanitize();
@@ -301,5 +329,37 @@ if (profilers.length) {
         for (const p of profilers) {
             p.write();
         }
-    });
+
+        if (!calledFromExit) {
+            // If we are exiting, don't bother unregistering.
+            unregisterAtExit?.();
+        }
+
+        started = false;
+        stopped = true;
+    };
+
+    if (stopOnExit) {
+        unregisterAtExit = onExit(() => stop(/*calledFromExit*/ true));
+    }
+
+    return stop;
+}
+
+function isPreloading(): boolean {
+    if ((module as any).isPreloading !== undefined) {
+        // >=v14.17.0
+        return (module as any).isPreloading;
+    }
+
+    return module.parent?.id === 'internal/preload';
+}
+
+if (isPreloading()) {
+    try {
+        onExit(start());
+    } catch (e) {
+        console.error('pprof-it: ' + (e as Error).message);
+        process.exit(1);
+    }
 }

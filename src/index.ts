@@ -108,12 +108,12 @@ namespace Options {
         return profilers.size ? profilers : undefined;
     }
 
-    const unset = Symbol('unset');
     function lazy<T>(fn: () => T): () => T {
-        let v: T | typeof unset = unset;
+        let v: T;
         return () => {
-            if (v === unset) {
+            if (fn) {
                 v = fn();
+                fn = undefined as any;
             }
             return v;
         };

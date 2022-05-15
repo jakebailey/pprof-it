@@ -46,5 +46,6 @@
             "commitMessage": "Release v${version}",
             "tagName": "v${version}"
         }
-    }
+    },
+    "packageManager": "yarn@3.2.1"
 }

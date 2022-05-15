@@ -24,20 +24,20 @@
         "fix:prettier": "prettier --write ."
     },
     "dependencies": {
-        "@datadog/pprof": "^0.3.0",
+        "@datadog/pprof": "^0.4.0",
         "signal-exit": "^3.0.7"
     },
     "devDependencies": {
         "@tsconfig/node12": "^1.0.9",
-        "@types/node": "^12.20.43",
+        "@types/node": "^12.20.52",
         "@types/signal-exit": "^3.0.1",
-        "@typescript-eslint/eslint-plugin": "^5.10.2",
-        "@typescript-eslint/parser": "^5.10.2",
-        "eslint": "^8.8.0",
-        "eslint-config-prettier": "^8.3.0",
+        "@typescript-eslint/eslint-plugin": "^5.23.0",
+        "@typescript-eslint/parser": "^5.23.0",
+        "eslint": "^8.15.0",
+        "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-simple-import-sort": "^7.0.0",
-        "prettier": "2.5.1",
+        "prettier": "2.6.2",
         "rimraf": "^3.0.2",
-        "typescript": "^4.5.5"
+        "typescript": "^4.6.4"
     }
 }

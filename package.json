@@ -1,6 +1,6 @@
 {
     "name": "pprof-it",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Handy wrapper for pprof",
     "repository": "https://github.com/jakebailey/pprof-it",
     "author": "Jake Bailey",

@@ -25,7 +25,7 @@
         "release": "release-it"
     },
     "dependencies": {
-        "@datadog/pprof": "^0.5.1",
+        "@datadog/pprof": "^1.0.2",
         "signal-exit": "^3.0.7"
     },
     "devDependencies": {

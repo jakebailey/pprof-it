@@ -16,8 +16,8 @@
     ],
     "scripts": {
         "clean": "rimraf dist",
-        "prepack": "yarn run clean && tsc",
-        "check": "yarn run check:eslint && yarn run check:prettier",
+        "prepack": "npm run clean && tsc",
+        "check": "npm run check:eslint && npm run check:prettier",
         "check:eslint": "eslint .",
         "fix:eslint": "eslint --fix .",
         "check:prettier": "prettier -c .",

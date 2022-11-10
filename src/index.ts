@@ -192,7 +192,7 @@ abstract class Profiler {
         assert(this._profile.function);
         for (const f of this._profile.function) {
             const filename = f.filename;
-            if (filename !== undefined) {
+            if (filename) {
                 if (typeof filename === 'number') {
                     ids.add(filename);
                 } else {

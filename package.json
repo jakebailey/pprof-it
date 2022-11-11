@@ -8,6 +8,7 @@
     "engines": {
         "node": ">=12.0.0"
     },
+    "bin": "dist/main.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
@@ -15,8 +16,9 @@
         "LICENSE.txt"
     ],
     "scripts": {
+        "build": "tsc",
         "clean": "rimraf dist",
-        "prepack": "npm run clean && tsc",
+        "prepack": "npm run clean && npm run build",
         "check": "npm run check:eslint && npm run check:prettier",
         "check:eslint": "eslint .",
         "fix:eslint": "eslint --fix .",
@@ -26,10 +28,12 @@
     },
     "dependencies": {
         "@datadog/pprof": "^1.1.1",
+        "foreground-child": "^2.0.0",
         "signal-exit": "^3.0.7"
     },
     "devDependencies": {
         "@tsconfig/node12": "^1.0.11",
+        "@types/foreground-child": "^2.0.0",
         "@types/node": "^12.20.55",
         "@types/signal-exit": "^3.0.1",
         "@typescript-eslint/eslint-plugin": "^5.42.1",

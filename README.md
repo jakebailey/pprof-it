@@ -9,9 +9,13 @@ for many more platforms.)
 
 ## Usage
 
-To use `pprof-it`, install the package, then pass `--require pprof-it` to node
-when executing your program. Depending on how your program is run, this can be
-achieved one of a few ways:
+To use `pprof-it`, use `pprof-it` in place of `node`:
+
+```sh
+$ npx pprof-it path/to/script.js
+```
+
+Or, ensure `node` is run with `--require=pprof-it`:
 
 ```sh
 # Directly running with node

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import foregroundChild from 'foreground-child';
 import path from 'path';
 

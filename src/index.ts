@@ -17,10 +17,10 @@ if (!isPreloading()) {
 }
 
 import * as pprof from '@datadog/pprof';
-import { perftools } from '@datadog/pprof/proto/profile';
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
+import { Profile } from 'pprof-format';
 import signalExit from 'signal-exit';
 
 enum ProfilerName {
@@ -170,13 +170,13 @@ function sanitize(s: string): string {
 }
 
 abstract class Profiler {
-    private _profile?: perftools.profiles.IProfile;
+    private _profile?: Profile;
 
     constructor(private _name: ProfilerName, private _profilePath: string) {}
 
     abstract start(): void;
 
-    protected abstract _stop(): perftools.profiles.IProfile;
+    protected abstract _stop(): Profile;
 
     stop(): void {
         this._profile = this._stop();
@@ -196,18 +196,18 @@ abstract class Profiler {
                 if (typeof filename === 'number') {
                     ids.add(filename);
                 } else {
-                    ids.add(filename.toInt());
+                    throw new Error(`unsupported filename ${filename}`)
                 }
             }
         }
 
         assert(this._profile.stringTable);
         for (const index of ids.values()) {
-            const p = this._profile.stringTable[index];
+            const p = this._profile.stringTable.strings[index];
             // Paths to the parts of the standard library that are implemented
             // in JavaScript are relative; other paths are absolute.
             if (p && path.isAbsolute(p)) {
-                this._profile.stringTable[index] = sanitize(p);
+                this._profile.stringTable.strings[index] = sanitize(p);
             }
         }
     }
@@ -229,13 +229,13 @@ class HeapProfiler extends Profiler {
         pprof.heap.start(Options.heapInterval, Options.heapStackDepth);
     }
 
-    protected _stop(): perftools.profiles.IProfile {
+    protected _stop(): Profile {
         return pprof.heap.profile();
     }
 }
 
 class TimeProfiler extends Profiler {
-    private _stopFn?: () => perftools.profiles.IProfile;
+    private _stopFn?: () => Profile;
 
     constructor() {
         super(ProfilerName.Time, Options.timeOut);
@@ -250,7 +250,7 @@ class TimeProfiler extends Profiler {
         );
     }
 
-    protected _stop(): perftools.profiles.IProfile {
+    protected _stop(): Profile {
         assert(this._stopFn);
         return this._stopFn();
     }

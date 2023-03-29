@@ -196,7 +196,7 @@ abstract class Profiler {
                 if (typeof filename === 'number') {
                     ids.add(filename);
                 } else {
-                    throw new Error(`unsupported filename ${filename}`)
+                    throw new Error(`unsupported filename ${filename}`);
                 }
             }
         }
@@ -300,6 +300,24 @@ if (profilers.length) {
 
         for (const p of profilers) {
             p.write();
+        }
+
+        // signal-exit always forces an exit, even if there are existing listeners.
+        // If we are here and Node's "handleProcessExit" handler is still present,
+        // then it's not going to run and we'll exit with without having set the code
+        // to "Unfinished Top-Level Await" i.e. 13.
+        //
+        // To work around this problem, manually set the exit code to 13 so it doesn't
+        // look like the process succeeded.
+        //
+        // See:
+        //   - https://github.com/jakebailey/pprof-it/issues/1
+        //   - https://github.com/nodejs/node/blob/67660e886758ba0ab71cb6bf90745bf0212b4167/lib/internal/modules/esm/handle_process_exit.js#L8
+        const exitListeners = process.listeners('exit');
+        for (const listener of exitListeners) {
+            if (listener.name === 'handleProcessExit') {
+                process.exitCode = 13;
+            }
         }
     });
 }

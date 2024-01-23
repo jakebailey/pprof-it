@@ -16,11 +16,10 @@ if (!isPreloading()) {
     exitError("pprof-it must be required using the --require flag");
 }
 
-import assert from "node:assert";
-import fs from "node:fs";
-import path from "node:path";
-
 import * as pprof from "@datadog/pprof";
+import assert from "assert";
+import fs from "fs";
+import path from "path";
 import { Profile } from "pprof-format";
 import signalExit from "signal-exit";
 

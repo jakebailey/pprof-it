@@ -104,7 +104,8 @@
         "unicorn/switch-case-braces": 0,
         "unicorn/prefer-string-replace-all": 0, // Bad suggestion for old targets
         "unicorn/prefer-module": 0,
-        "unicorn/no-process-exit": 0
+        "unicorn/no-process-exit": 0,
+        "unicorn/prefer-node-protocol": 0 // cjs
     },
     "ignorePatterns": ["**/dist/**", "**/node_modules/**", "bin/**", "coverage/**"]
 }

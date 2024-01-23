@@ -4,28 +4,29 @@ function isPreloading(): boolean {
         return (module as any).isPreloading;
     }
 
-    return module.parent?.id === 'internal/preload';
+    return module.parent?.id === "internal/preload";
 }
 
 function exitError(message: string): never {
-    console.error('pprof-it: ' + message);
+    console.error("pprof-it: " + message);
     process.exit(1);
 }
 
 if (!isPreloading()) {
-    exitError('pprof-it must be required using the --require flag');
+    exitError("pprof-it must be required using the --require flag");
 }
 
-import * as pprof from '@datadog/pprof';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
-import { Profile } from 'pprof-format';
-import signalExit from 'signal-exit';
+import assert from "node:assert";
+import fs from "node:fs";
+import path from "node:path";
+
+import * as pprof from "@datadog/pprof";
+import { Profile } from "pprof-format";
+import signalExit from "signal-exit";
 
 enum ProfilerName {
-    Heap = 'heap',
-    Time = 'time',
+    Heap = "heap",
+    Time = "time",
 }
 
 namespace Options {
@@ -35,8 +36,8 @@ namespace Options {
             return undefined;
         }
 
-        const x = parseInt(v);
-        if (isNaN(x)) {
+        const x = Number.parseInt(v);
+        if (Number.isNaN(x)) {
             exitError(`invalid value ${envName}=${v}`);
         }
         return x;
@@ -49,15 +50,15 @@ namespace Options {
         }
 
         switch (v.toLowerCase()) {
-            case '1':
-            case 'true':
-            case 'yes':
-            case 'on':
+            case "1":
+            case "true":
+            case "yes":
+            case "on":
                 return true;
-            case '0':
-            case 'false':
-            case 'no':
-            case 'off':
+            case "0":
+            case "false":
+            case "no":
+            case "off":
                 return false;
             default:
                 exitError(`invalid value ${envName}=${v}`);
@@ -93,7 +94,7 @@ namespace Options {
     }
 
     function parseOutputPath(envName: string, defaultFilename: string): string {
-        const p = path.resolve(outDir, process.env[envName] || '');
+        const p = path.resolve(outDir, process.env[envName] || "");
 
         if (tryStat(p)?.isDirectory()) {
             return path.join(p, defaultFilename);
@@ -115,7 +116,7 @@ namespace Options {
         }
 
         const profilers = new Set<ProfilerName>();
-        for (const x of v.split(',').filter((x) => x)) {
+        for (const x of v.split(",").filter(Boolean)) {
             if (isProfilerName(x)) {
                 profilers.add(x);
             } else {
@@ -123,25 +124,25 @@ namespace Options {
             }
         }
 
-        return profilers.size ? profilers : undefined;
+        return profilers.size > 0 ? profilers : undefined;
     }
 
-    export const profilers = parseEnvProfilers('PPROF_PROFILERS') ?? allProfilers;
-    export const outDir = parseEnvDir('PPROF_OUT') ?? process.cwd();
-    export const sanitize = parseEnvBoolean('PPROF_SANITIZE') ?? false;
-    export const lineNumbers = parseEnvBoolean('PPROF_LINE_NUMBERS') ?? true;
-    export const heapOut = parseOutputPath('PPROF_HEAP_OUT', `pprof-heap-${process.pid}.pb.gz`);
-    export const heapInterval = parseEnvInt('PPROF_HEAP_INTERVAL') ?? 512 * 1024;
-    export const heapStackDepth = parseEnvInt('PPROF_HEAP_STACK_DEPTH') ?? 64;
-    export const timeOut = parseOutputPath('PPROF_TIME_OUT', `pprof-time-${process.pid}.pb.gz`);
-    export const timeInterval = parseEnvInt('PPROF_TIME_INTERVAL') ?? 1000;
-    export const signalExit = parseEnvBoolean('PPROF_SIGNAL_EXIT') ?? true;
-    export const logging = parseEnvBoolean('PPROF_LOGGING') ?? true;
+    export const profilers = parseEnvProfilers("PPROF_PROFILERS") ?? allProfilers;
+    export const outDir = parseEnvDir("PPROF_OUT") ?? process.cwd();
+    export const sanitize = parseEnvBoolean("PPROF_SANITIZE") ?? false;
+    export const lineNumbers = parseEnvBoolean("PPROF_LINE_NUMBERS") ?? true;
+    export const heapOut = parseOutputPath("PPROF_HEAP_OUT", `pprof-heap-${process.pid}.pb.gz`);
+    export const heapInterval = parseEnvInt("PPROF_HEAP_INTERVAL") ?? 512 * 1024;
+    export const heapStackDepth = parseEnvInt("PPROF_HEAP_STACK_DEPTH") ?? 64;
+    export const timeOut = parseOutputPath("PPROF_TIME_OUT", `pprof-time-${process.pid}.pb.gz`);
+    export const timeInterval = parseEnvInt("PPROF_TIME_INTERVAL") ?? 1000;
+    export const signalExit = parseEnvBoolean("PPROF_SIGNAL_EXIT") ?? true;
+    export const logging = parseEnvBoolean("PPROF_LOGGING") ?? true;
 }
 
 function log(message: string): void {
     if (Options.logging) {
-        console.error('pprof-it: ' + message);
+        console.error("pprof-it: " + message);
     }
 }
 
@@ -155,7 +156,7 @@ function prettierPath(p: string) {
 }
 
 function assertNever(x: never): never {
-    throw new Error('Unexpected object: ' + x);
+    throw new Error(`Unexpected object: ${x}`);
 }
 
 const sanitizedNames = new Map<string, string>();
@@ -193,10 +194,10 @@ abstract class Profiler {
         for (const f of this._profile.function) {
             const filename = f.filename;
             if (filename) {
-                if (typeof filename === 'number') {
+                if (typeof filename === "number") {
                     ids.add(filename);
                 } else {
-                    throw new Error(`unsupported filename ${filename}`);
+                    throw new TypeError(`unsupported filename ${filename}`);
                 }
             }
         }
@@ -246,7 +247,7 @@ class TimeProfiler extends Profiler {
             Options.timeInterval,
             /* name */ undefined,
             /* sourceMapper */ undefined,
-            Options.lineNumbers
+            Options.lineNumbers,
         );
     }
 
@@ -260,7 +261,7 @@ function onExit(fn: () => void) {
     if (Options.signalExit) {
         signalExit(fn);
     } else {
-        process.on('exit', fn);
+        process.on("exit", fn);
     }
 }
 
@@ -279,8 +280,8 @@ for (const x of Options.profilers) {
     }
 }
 
-if (profilers.length) {
-    log(`Starting profilers (${[...Options.profilers.values()].join(', ')})`);
+if (profilers.length > 0) {
+    log(`Starting profilers (${[...Options.profilers.values()].join(", ")})`);
     for (const p of profilers) {
         p.start();
     }
@@ -292,7 +293,7 @@ if (profilers.length) {
         }
 
         if (Options.sanitize) {
-            log('Sanitizing profiles');
+            log("Sanitizing profiles");
             for (const p of profilers) {
                 p.sanitize();
             }
@@ -313,9 +314,9 @@ if (profilers.length) {
         // See:
         //   - https://github.com/jakebailey/pprof-it/issues/1
         //   - https://github.com/nodejs/node/blob/67660e886758ba0ab71cb6bf90745bf0212b4167/lib/internal/modules/esm/handle_process_exit.js#L8
-        const exitListeners = process.listeners('exit');
+        const exitListeners = process.listeners("exit");
         for (const listener of exitListeners) {
-            if (listener.name === 'handleProcessExit') {
+            if (listener.name === "handleProcessExit") {
                 process.exitCode = 13;
             }
         }

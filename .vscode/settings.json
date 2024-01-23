@@ -1,18 +1,15 @@
 {
-    "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
+    "editor.defaultFormatter": "dprint.dprint",
+    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
-    "typescript.tsdk": "node_modules/typescript/lib"
+
+    // These options search the repo recursively and slow down
+    // the build task menu. We define our own in tasks.json.
+    "typescript.tsc.autoDetect": "off",
+    "npm.autoDetect": "off",
+    "grunt.autoDetect": "off",
+    "jake.autoDetect": "off",
+    "gulp.autoDetect": "off"
 }

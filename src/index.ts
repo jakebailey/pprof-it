@@ -16,10 +16,15 @@ if (!isPreloading()) {
     exitError("pprof-it must be required using the --require flag");
 }
 
+import assert from "node:assert";
+import fs from "node:fs";
+import path from "node:path";
+import { isMainThread } from "node:worker_threads";
+
 import * as pprof from "@datadog/pprof";
-import assert from "assert";
-import fs from "fs";
-import path from "path";
+import { serializeTimeProfile } from "@datadog/pprof/out/src/profile-serializer";
+import { TimeProfilerOptions } from "@datadog/pprof/out/src/time-profiler";
+import { TimeProfiler as PProfTimeProfiler } from "@datadog/pprof/out/src/time-profiler-bindings";
 import { Profile } from "pprof-format";
 import signalExit from "signal-exit";
 
@@ -234,25 +239,48 @@ class HeapProfiler extends Profiler {
     }
 }
 
+const DEFAULT_INTERVAL_MICROS = 1000;
+const DEFAULT_DURATION_MILLIS = 60_000;
+
+const DEFAULT_OPTIONS: TimeProfilerOptions = {
+    durationMillis: DEFAULT_DURATION_MILLIS,
+    intervalMicros: DEFAULT_INTERVAL_MICROS,
+    lineNumbers: false,
+    withContexts: false,
+    workaroundV8Bug: true,
+    collectCpuTime: false,
+};
+
 class TimeProfiler extends Profiler {
-    private _stopFn?: () => Profile;
+    private _timeProfiler: typeof PProfTimeProfiler;
 
     constructor() {
         super(ProfilerName.Time, Options.timeOut);
     }
 
     start(): void {
-        this._stopFn = pprof.time.start(
-            Options.timeInterval,
-            /* name */ undefined,
-            /* sourceMapper */ undefined,
-            Options.lineNumbers,
-        );
+        const options: TimeProfilerOptions = {
+            ...DEFAULT_OPTIONS,
+            intervalMicros: Options.timeInterval,
+            lineNumbers: Options.lineNumbers,
+        };
+
+        this._timeProfiler = new PProfTimeProfiler({ ...options, isMainThread });
+        this._timeProfiler.start();
     }
 
     protected _stop(): Profile {
-        assert(this._stopFn);
-        return this._stopFn();
+        const profile = this._timeProfiler.stop(false);
+
+        const serialized_profile = serializeTimeProfile(
+            profile,
+            Options.timeInterval,
+            /*gSourceMapper*/ undefined,
+            true,
+            /*generateLabels*/ undefined,
+        );
+
+        return serialized_profile;
     }
 }
 

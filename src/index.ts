@@ -26,7 +26,7 @@ import { serializeTimeProfile } from "@datadog/pprof/out/src/profile-serializer"
 import { TimeProfilerOptions } from "@datadog/pprof/out/src/time-profiler";
 import { TimeProfiler as PProfTimeProfiler } from "@datadog/pprof/out/src/time-profiler-bindings";
 import { Profile } from "pprof-format";
-import signalExit from "signal-exit";
+import { onExit as signalExit } from "signal-exit";
 
 enum ProfilerName {
     Heap = "heap",

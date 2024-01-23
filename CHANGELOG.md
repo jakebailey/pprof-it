@@ -1,5 +1,11 @@
 # pprof-it
 
+## 2.0.0
+
+### Major Changes
+
+- c454ec0: Update pprof dependency, fixing many things
+
 ## 1.2.3
 
 ### Patch Changes

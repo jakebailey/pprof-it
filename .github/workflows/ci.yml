@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '15 0 * * *'
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [12, 14, 16, 18, 20]
+    runs-on: ${{ matrix.os }}
+    env:
+      OS: ${{ matrix.os }}
+      NODE: ${{ matrix.node-version }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4
+
+      - run: npm ci
+        if: ${{ github.event_name != 'schedule' }}
+
+      - shell: bash
+        run: |
+          npm install -g $(jq -r '.packageManager' < package.json)
+          rm package-lock.json
+          npm i
+        if: ${{ github.event_name == 'schedule' }}
+
+      - run: npm run build
+
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: |
+          node ./dist/main.js ./node_modules/typescript/lib/tsc.js
+
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4
+      - run: npm ci
+      - run: npx eslint .
+
+  dprint:
+    name: dprint
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4
+      - run: npm ci
+      - run: npx dprint check

@@ -27,6 +27,9 @@ jobs:
       - name: npm ci
         run: npm ci
 
+      - name: npm run build
+        run: npm run build
+
       - uses: changesets/action@v1
         with:
           publish: npx changeset publish

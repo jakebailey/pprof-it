@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "@changesets/cli": "^2.27.1",
-        "@tsconfig/node14": "^14.1.0",
+        "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
         "@types/node": "^18.19.22",
         "@types/signal-exit": "^3.0.4",

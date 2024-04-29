@@ -30,16 +30,16 @@
         "@changesets/cli": "^2.27.1",
         "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.30",
+        "@types/node": "^18.19.31",
         "@types/signal-exit": "^3.0.4",
-        "@typescript-eslint/eslint-plugin": "^7.5.0",
-        "@typescript-eslint/parser": "^7.5.0",
+        "@typescript-eslint/eslint-plugin": "^7.8.0",
+        "@typescript-eslint/parser": "^7.8.0",
         "dprint": "^0.45.1",
         "eslint": "^8.57.0",
-        "eslint-plugin-simple-import-sort": "^12.0.0",
+        "eslint-plugin-simple-import-sort": "^12.1.0",
         "eslint-plugin-unicorn": "^52.0.0",
         "rimraf": "^5.0.5",
-        "typescript": "^5.4.4"
+        "typescript": "^5.4.5"
     },
-    "packageManager": "npm@10.5.1+sha256.06b9421a6b708ed6b6c0840e54729851e067b45ad911b192ebee2cb03b0adef2"
+    "packageManager": "npm@10.6.0+sha256.7cf2bab20176def9dc5821f99b9712bd1b0bb5843ec1f243074c29f881d79c94"
 }

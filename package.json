@@ -41,5 +41,5 @@
         "rimraf": "^5.0.5",
         "typescript": "^5.4.5"
     },
-    "packageManager": "npm@10.6.0+sha256.7cf2bab20176def9dc5821f99b9712bd1b0bb5843ec1f243074c29f881d79c94"
+    "packageManager": "npm@10.8.1"
 }

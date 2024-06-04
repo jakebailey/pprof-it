@@ -30,7 +30,7 @@
         "@changesets/cli": "^2.27.1",
         "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.31",
+        "@types/node": "^18.19.34",
         "@types/signal-exit": "^3.0.4",
         "@typescript-eslint/eslint-plugin": "^7.8.0",
         "@typescript-eslint/parser": "^7.8.0",

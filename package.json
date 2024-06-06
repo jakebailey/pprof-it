@@ -21,25 +21,25 @@
         "prepack": "rimraf dist && npm run build"
     },
     "dependencies": {
-        "@datadog/pprof": "^5.2.0",
+        "@datadog/pprof": "^5.3.0",
         "foreground-child": "^3.1.1",
         "pprof-format": "^2.1.0",
         "signal-exit": "^4.1.0"
     },
     "devDependencies": {
-        "@changesets/cli": "^2.27.1",
+        "@changesets/cli": "^2.27.5",
         "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.31",
+        "@types/node": "^18.19.34",
         "@types/signal-exit": "^3.0.4",
-        "@typescript-eslint/eslint-plugin": "^7.8.0",
-        "@typescript-eslint/parser": "^7.8.0",
-        "dprint": "^0.45.1",
+        "@typescript-eslint/eslint-plugin": "^7.12.0",
+        "@typescript-eslint/parser": "^7.12.0",
+        "dprint": "^0.46.1",
         "eslint": "^8.57.0",
         "eslint-plugin-simple-import-sort": "^12.1.0",
-        "eslint-plugin-unicorn": "^52.0.0",
-        "rimraf": "^5.0.5",
+        "eslint-plugin-unicorn": "^53.0.0",
+        "rimraf": "^5.0.7",
         "typescript": "^5.4.5"
     },
-    "packageManager": "npm@10.6.0+sha256.7cf2bab20176def9dc5821f99b9712bd1b0bb5843ec1f243074c29f881d79c94"
+    "packageManager": "npm@10.8.1+sha256.b8807aebb9656758e2872fa6e7c564b506aa2faa9297439a478d471d2fe32483"
 }

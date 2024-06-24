@@ -22,24 +22,24 @@
     },
     "dependencies": {
         "@datadog/pprof": "^5.3.0",
-        "foreground-child": "^3.1.1",
+        "foreground-child": "^3.2.1",
         "pprof-format": "^2.1.0",
         "signal-exit": "^4.1.0"
     },
     "devDependencies": {
-        "@changesets/cli": "^2.27.5",
+        "@changesets/cli": "^2.27.6",
         "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.34",
+        "@types/node": "^18.19.39",
         "@types/signal-exit": "^3.0.4",
-        "@typescript-eslint/eslint-plugin": "^7.12.0",
-        "@typescript-eslint/parser": "^7.12.0",
-        "dprint": "^0.46.1",
+        "@typescript-eslint/eslint-plugin": "^7.14.1",
+        "@typescript-eslint/parser": "^7.14.1",
+        "dprint": "^0.46.3",
         "eslint": "^8.57.0",
         "eslint-plugin-simple-import-sort": "^12.1.0",
-        "eslint-plugin-unicorn": "^53.0.0",
+        "eslint-plugin-unicorn": "^54.0.0",
         "rimraf": "^5.0.7",
-        "typescript": "^5.4.5"
+        "typescript": "^5.5.2"
     },
     "packageManager": "npm@10.8.1+sha256.b8807aebb9656758e2872fa6e7c564b506aa2faa9297439a478d471d2fe32483"
 }

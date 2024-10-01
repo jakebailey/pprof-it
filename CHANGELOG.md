@@ -1,5 +1,11 @@
 # pprof-it
 
+## 2.0.1
+
+### Patch Changes
+
+- fe47ff3: Update deps
+
 ## 2.0.0
 
 ### Major Changes

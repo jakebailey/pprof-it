@@ -22,24 +22,24 @@
     },
     "dependencies": {
         "@datadog/pprof": "^5.3.0",
-        "foreground-child": "^3.2.1",
+        "foreground-child": "^3.3.0",
         "pprof-format": "^2.1.0",
         "signal-exit": "^4.1.0"
     },
     "devDependencies": {
-        "@changesets/cli": "^2.27.7",
+        "@changesets/cli": "^2.27.8",
         "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.42",
+        "@types/node": "^18.19.54",
         "@types/signal-exit": "^3.0.4",
-        "@typescript-eslint/eslint-plugin": "^7.17.0",
-        "@typescript-eslint/parser": "^7.17.0",
+        "@typescript-eslint/eslint-plugin": "^8.8.0",
+        "@typescript-eslint/parser": "^8.8.0",
         "dprint": "^0.47.2",
-        "eslint": "^8.57.0",
+        "eslint": "^8.57.1",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "eslint-plugin-unicorn": "^55.0.0",
         "rimraf": "^6.0.1",
-        "typescript": "^5.5.4"
+        "typescript": "^5.6.2"
     },
-    "packageManager": "npm@10.8.1+sha256.b8807aebb9656758e2872fa6e7c564b506aa2faa9297439a478d471d2fe32483"
+    "packageManager": "npm@10.8.3+sha512.d08425c8062f56d43bb8e84315864218af2492eb769e1f1ca40740f44e85bd148969382d651660363942e5909cb7ffcbef7ca0ae963ddc2c57a51243b4da8f56"
 }

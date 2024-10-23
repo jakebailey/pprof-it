@@ -21,7 +21,7 @@
         "prepack": "rimraf dist && npm run build"
     },
     "dependencies": {
-        "@datadog/pprof": "^5.3.0",
+        "@datadog/pprof": "^5.4.1",
         "foreground-child": "^3.3.0",
         "pprof-format": "^2.1.0",
         "signal-exit": "^4.1.0"

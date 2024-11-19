@@ -37,7 +37,7 @@
         "dprint": "^0.47.4",
         "eslint": "^8.57.1",
         "eslint-plugin-simple-import-sort": "^12.1.1",
-        "eslint-plugin-unicorn": "^56.0.0",
+        "eslint-plugin-unicorn": "^56.0.1",
         "rimraf": "^6.0.1",
         "typescript": "^5.6.3"
     },

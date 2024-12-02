@@ -34,7 +34,7 @@
         "@types/signal-exit": "^3.0.4",
         "@typescript-eslint/eslint-plugin": "^8.11.0",
         "@typescript-eslint/parser": "^8.11.0",
-        "dprint": "^0.47.4",
+        "dprint": "^0.47.6",
         "eslint": "^8.57.1",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "eslint-plugin-unicorn": "^56.0.0",

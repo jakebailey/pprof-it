@@ -27,19 +27,19 @@
         "signal-exit": "^4.1.0"
     },
     "devDependencies": {
-        "@changesets/cli": "^2.27.9",
+        "@changesets/cli": "^2.27.10",
         "@tsconfig/node14": "^14.1.2",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.59",
+        "@types/node": "^18.19.67",
         "@types/signal-exit": "^3.0.4",
-        "@typescript-eslint/eslint-plugin": "^8.11.0",
-        "@typescript-eslint/parser": "^8.11.0",
-        "dprint": "^0.47.4",
+        "@typescript-eslint/eslint-plugin": "^8.17.0",
+        "@typescript-eslint/parser": "^8.17.0",
+        "dprint": "^0.47.6",
         "eslint": "^8.57.1",
         "eslint-plugin-simple-import-sort": "^12.1.1",
-        "eslint-plugin-unicorn": "^56.0.0",
+        "eslint-plugin-unicorn": "^56.0.1",
         "rimraf": "^6.0.1",
-        "typescript": "^5.6.3"
+        "typescript": "^5.7.2"
     },
-    "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b"
+    "packageManager": "npm@10.9.2+sha512.8ab88f10f224a0c614cb717a7f7c30499014f77134120e9c1f0211ea3cf3397592cbe483feb38e0c4b3be1c54e347292c76a1b5edb94a3289d5448484ab8ac81"
 }

@@ -33,7 +33,7 @@
         "@types/node": "^18.19.67",
         "@types/signal-exit": "^3.0.4",
         "dprint": "^0.47.6",
-        "eslint": "^9.16.0",
+        "eslint": "^9.17.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "eslint-plugin-unicorn": "^56.0.1",
         "globals": "^15.13.0",

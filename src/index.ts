@@ -188,13 +188,13 @@ abstract class Profiler {
     }
 
     sanitize(): void {
-        assert(this._profile);
+        assert.ok(this._profile);
 
         const ids = new Set<number>();
 
         // All samples/locations are rooted at functions, which contain
         // the string IDs of the filename.
-        assert(this._profile.function);
+        assert.ok(this._profile.function);
         for (const f of this._profile.function) {
             const filename = f.filename;
             if (filename) {
@@ -206,7 +206,7 @@ abstract class Profiler {
             }
         }
 
-        assert(this._profile.stringTable);
+        assert.ok(this._profile.stringTable);
         for (const index of ids.values()) {
             const p = this._profile.stringTable.strings[index];
             // Paths to the parts of the standard library that are implemented
@@ -218,7 +218,7 @@ abstract class Profiler {
     }
 
     write(): void {
-        assert(this._profile);
+        assert.ok(this._profile);
         log(`Writing ${this._name} profile to ${prettierPath(this._profilePath)}`);
         const buffer = pprof.encodeSync(this._profile);
         fs.writeFileSync(this._profilePath, buffer);

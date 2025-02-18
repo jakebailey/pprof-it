@@ -1,5 +1,11 @@
 # pprof-it
 
+## 3.0.1
+
+### Patch Changes
+
+- 68bdb2f: Update deps
+
 ## 3.0.0
 
 ### Major Changes

@@ -1,5 +1,12 @@
 # pprof-it
 
+## 3.0.1
+
+### Patch Changes
+
+- 68bdb2f: Update deps
+- 6b8d8d1: Avoid pprof 5.7.0, which is broken
+
 ## 3.0.0
 
 ### Major Changes

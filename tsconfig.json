@@ -1,12 +1,11 @@
 {
-    "extends": "@tsconfig/node18/tsconfig.json",
+    "extends": ["@tsconfig/node18", "@tsconfig/strictest"],
     "compilerOptions": {
         "outDir": "./dist",
         "declaration": true,
-        "noImplicitReturns": true,
-        "noImplicitOverride": true,
-        "noPropertyAccessFromIndexSignature": true,
-        "newLine": "lf"
+        "newLine": "lf",
+        "verbatimModuleSyntax": true,
+        "rootDir": "./src"
     },
-    "exclude": ["dist", "node_modules"]
+    "include": ["src"]
 }

@@ -16,17 +16,17 @@ if (!isPreloading()) {
     exitError("pprof-it must be required using the --require flag");
 }
 
-import assert from "node:assert";
-import fs from "node:fs";
-import path from "node:path";
-import { isMainThread } from "node:worker_threads";
+import assert = require("node:assert");
+import fs = require("node:fs");
+import path = require("node:path");
+import worker_threads = require("node:worker_threads");
 
-import * as pprof from "@datadog/pprof";
-import { serializeTimeProfile } from "@datadog/pprof/out/src/profile-serializer";
-import { TimeProfilerOptions } from "@datadog/pprof/out/src/time-profiler";
-import { TimeProfiler as PProfTimeProfiler } from "@datadog/pprof/out/src/time-profiler-bindings";
-import { Profile } from "pprof-format";
-import { onExit as signalExit } from "signal-exit";
+import pprof = require("@datadog/pprof");
+import pprofProfileSerializer = require("@datadog/pprof/out/src/profile-serializer");
+import type { TimeProfilerOptions } from "@datadog/pprof/out/src/time-profiler";
+import pprofTimeProfilerBindings = require("@datadog/pprof/out/src/time-profiler-bindings");
+import type { Profile } from "pprof-format";
+import signalExit = require("signal-exit");
 
 enum ProfilerName {
     Heap = "heap",
@@ -254,7 +254,7 @@ const DEFAULT_OPTIONS: TimeProfilerOptions = {
 };
 
 class TimeProfiler extends Profiler {
-    private _timeProfiler: typeof PProfTimeProfiler;
+    private _timeProfiler: typeof pprofTimeProfilerBindings.TimeProfiler;
 
     constructor() {
         super(ProfilerName.Time, Options.timeOut);
@@ -267,14 +267,17 @@ class TimeProfiler extends Profiler {
             lineNumbers: Options.lineNumbers,
         };
 
-        this._timeProfiler = new PProfTimeProfiler({ ...options, isMainThread });
+        this._timeProfiler = new pprofTimeProfilerBindings.TimeProfiler({
+            ...options,
+            isMainThread: worker_threads.isMainThread,
+        });
         this._timeProfiler.start();
     }
 
     protected _stop(): Profile {
         const profile = this._timeProfiler.stop(false);
 
-        const serialized_profile = serializeTimeProfile(
+        const serialized_profile = pprofProfileSerializer.serializeTimeProfile(
             profile,
             Options.timeInterval,
             /*gSourceMapper*/ undefined,
@@ -288,7 +291,7 @@ class TimeProfiler extends Profiler {
 
 function onExit(fn: () => void) {
     if (Options.signalExit) {
-        signalExit(fn);
+        signalExit.onExit(fn);
     } else {
         process.on("exit", fn);
     }

@@ -249,6 +249,8 @@ const DEFAULT_OPTIONS: TimeProfilerOptions = {
     withContexts: false,
     workaroundV8Bug: true,
     collectCpuTime: false,
+    collectAsyncId: false,
+    useCPED: false,
 };
 
 class TimeProfiler extends Profiler {

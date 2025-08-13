@@ -16,6 +16,73 @@ if (!isPreloading()) {
     exitError("pprof-it must be required using the --require flag");
 }
 
+// eslint-disable-next-line no-var
+declare var window: any;
+
+function isElectron() {
+    if (process.versions && process.versions["electron"]) return true;
+    if (process.env["ELECTRON_RUN_AS_NODE"]) return true;
+    // eslint-disable-next-line unicorn/no-typeof-undefined
+    return typeof window !== "undefined" && window.process && window.process.type === "renderer";
+}
+
+interface ElectronHackBackup {
+    version?: string | undefined;
+    runAsNode?: string | undefined;
+    window?: any;
+    abi?: string | undefined;
+}
+
+let electronHack: ElectronHackBackup | undefined;
+
+if (isElectron()) {
+    electronHack = {};
+
+    console.error("pprof-it: Electron detected; tricking pprof into loading regular node bindings");
+
+    if (process.versions && process.versions["electron"]) {
+        electronHack.version = process.versions["electron"];
+        delete process.versions["electron"];
+    }
+
+    if (process.env["ELECTRON_RUN_AS_NODE"]) {
+        electronHack.runAsNode = process.env["ELECTRON_RUN_AS_NODE"];
+        delete process.env["ELECTRON_RUN_AS_NODE"];
+    }
+
+    // eslint-disable-next-line unicorn/no-typeof-undefined
+    if (typeof window !== "undefined") {
+        electronHack.window = window;
+        delete (globalThis as any).window;
+    }
+
+    // Work around node-abi "fast path" that doesn't query the DB
+    // when getAbi is given the current version of node.
+    const nodeVersion = process.versions.node;
+    Object.defineProperty(process.versions, "node", {
+        value: "v0.0.0",
+        configurable: true,
+        writable: true,
+    });
+
+    const nodeAbi: typeof import("node-abi") = require("node-abi");
+    const abi = nodeAbi.getAbi(nodeVersion, "node");
+    process.versions.node = nodeVersion;
+    electronHack.abi = process.versions.modules;
+
+    Object.defineProperty(process.versions, "modules", {
+        value: abi,
+        configurable: true,
+        writable: true,
+    });
+
+    if (isElectron()) {
+        exitError("pprof-it: Failed to trick pprof into loading regular node bindings");
+    }
+}
+
+// The below imports are transpiled as CJS, so will be executed after the above code.
+
 import assert = require("node:assert");
 import fs = require("node:fs");
 import path = require("node:path");
@@ -27,6 +94,24 @@ import type { TimeProfilerOptions } from "@datadog/pprof/out/src/time-profiler";
 import pprofTimeProfilerBindings = require("@datadog/pprof/out/src/time-profiler-bindings");
 import type { Profile } from "pprof-format";
 import signalExit = require("signal-exit");
+
+if (electronHack) {
+    if (electronHack.version) {
+        process.versions["electron"] = electronHack.version;
+    }
+
+    if (electronHack.runAsNode) {
+        process.env["ELECTRON_RUN_AS_NODE"] = electronHack.runAsNode;
+    }
+
+    if (electronHack.window) {
+        (globalThis as any).window = electronHack.window;
+    }
+
+    if (electronHack.abi) {
+        process.versions.modules = electronHack.abi;
+    }
+}
 
 enum ProfilerName {
     Heap = "heap",

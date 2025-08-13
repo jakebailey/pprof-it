@@ -1,5 +1,11 @@
 # pprof-it
 
+## 4.0.0
+
+### Major Changes
+
+- 058ed81: Update @datadog/pprof, raise min version to Node 18
+
 ## 3.0.1
 
 ### Patch Changes

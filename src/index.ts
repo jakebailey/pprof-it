@@ -16,6 +16,45 @@ if (!isPreloading()) {
     exitError("pprof-it must be required using the --require flag");
 }
 
+declare var window: any;
+
+function isElectron() {
+    if (process.versions && process.versions["electron"]) return true;
+    if (process.env["ELECTRON_RUN_AS_NODE"]) return true;
+    return typeof window !== "undefined" && window.process && window.process.type === "renderer";
+}
+
+let electronHack = false;
+let electonVersion: string | undefined;
+let electronRunAsNode: string | undefined;
+let windowBackup: any;
+
+if (isElectron()) {
+    electronHack = true;
+    console.error("pprof-it: Electron detected; tricking pprof into loading regular node bindings");
+
+    if (process.versions && process.versions["electron"]) {
+        electonVersion = process.versions["electron"];
+        delete process.versions["electron"];
+    }
+
+    if (process.env["ELECTRON_RUN_AS_NODE"]) {
+        electronRunAsNode = process.env["ELECTRON_RUN_AS_NODE"];
+        delete process.env["ELECTRON_RUN_AS_NODE"];
+    }
+
+    if (typeof window !== "undefined") {
+        windowBackup = window;
+        delete (globalThis as any).window;
+    }
+
+    if (isElectron()) {
+        exitError("pprof-it: Failed to trick pprof into loading regular node bindings");
+    }
+}
+
+// The below imports are transpiled as CJS, so will be executed after the above code.
+
 import assert = require("node:assert");
 import fs = require("node:fs");
 import path = require("node:path");
@@ -27,6 +66,20 @@ import type { TimeProfilerOptions } from "@datadog/pprof/out/src/time-profiler";
 import pprofTimeProfilerBindings = require("@datadog/pprof/out/src/time-profiler-bindings");
 import type { Profile } from "pprof-format";
 import signalExit = require("signal-exit");
+
+if (electronHack) {
+    if (electonVersion) {
+        process.versions["electron"] = electonVersion;
+    }
+
+    if (electronRunAsNode) {
+        process.env["ELECTRON_RUN_AS_NODE"] = electronRunAsNode;
+    }
+
+    if (windowBackup) {
+        (globalThis as any).window = windowBackup;
+    }
+}
 
 enum ProfilerName {
     Heap = "heap",

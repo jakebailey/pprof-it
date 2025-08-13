@@ -16,11 +16,13 @@ if (!isPreloading()) {
     exitError("pprof-it must be required using the --require flag");
 }
 
+// eslint-disable-next-line no-var
 declare var window: any;
 
 function isElectron() {
     if (process.versions && process.versions["electron"]) return true;
     if (process.env["ELECTRON_RUN_AS_NODE"]) return true;
+    // eslint-disable-next-line unicorn/no-typeof-undefined
     return typeof window !== "undefined" && window.process && window.process.type === "renderer";
 }
 
@@ -43,6 +45,7 @@ if (isElectron()) {
         delete process.env["ELECTRON_RUN_AS_NODE"];
     }
 
+    // eslint-disable-next-line unicorn/no-typeof-undefined
     if (typeof window !== "undefined") {
         windowBackup = window;
         delete (globalThis as any).window;

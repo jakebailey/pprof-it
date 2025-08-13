@@ -115,6 +115,7 @@ export default tseslint.config(
                     },
                 },
             ],
+            "@typescript-eslint/no-require-imports": "off",
             "unicorn/catch-error-name": "off",
             "unicorn/filename-case": "off",
             "unicorn/no-array-callback-reference": "off",

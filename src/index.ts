@@ -26,30 +26,55 @@ function isElectron() {
     return typeof window !== "undefined" && window.process && window.process.type === "renderer";
 }
 
-let electronHack = false;
-let electonVersion: string | undefined;
-let electronRunAsNode: string | undefined;
-let windowBackup: any;
+interface ElectronHackBackup {
+    version?: string | undefined;
+    runAsNode?: string | undefined;
+    window?: any;
+    abi?: string | undefined;
+}
+
+let electronHack: ElectronHackBackup | undefined;
 
 if (isElectron()) {
-    electronHack = true;
+    electronHack = {};
+
     console.error("pprof-it: Electron detected; tricking pprof into loading regular node bindings");
 
     if (process.versions && process.versions["electron"]) {
-        electonVersion = process.versions["electron"];
+        electronHack.version = process.versions["electron"];
         delete process.versions["electron"];
     }
 
     if (process.env["ELECTRON_RUN_AS_NODE"]) {
-        electronRunAsNode = process.env["ELECTRON_RUN_AS_NODE"];
+        electronHack.runAsNode = process.env["ELECTRON_RUN_AS_NODE"];
         delete process.env["ELECTRON_RUN_AS_NODE"];
     }
 
     // eslint-disable-next-line unicorn/no-typeof-undefined
     if (typeof window !== "undefined") {
-        windowBackup = window;
+        electronHack.window = window;
         delete (globalThis as any).window;
     }
+
+    // Work around node-abi "fast path" that doesn't query the DB
+    // when getAbi is given the current version of node.
+    const nodeVersion = process.versions.node;
+    Object.defineProperty(process.versions, "node", {
+        value: "v0.0.0",
+        configurable: true,
+        writable: true,
+    });
+
+    const nodeAbi: typeof import("node-abi") = require("node-abi");
+    const abi = nodeAbi.getAbi(nodeVersion, "node");
+    process.versions.node = nodeVersion;
+    electronHack.abi = process.versions.modules;
+
+    Object.defineProperty(process.versions, "modules", {
+        value: abi,
+        configurable: true,
+        writable: true,
+    });
 
     if (isElectron()) {
         exitError("pprof-it: Failed to trick pprof into loading regular node bindings");
@@ -71,16 +96,20 @@ import type { Profile } from "pprof-format";
 import signalExit = require("signal-exit");
 
 if (electronHack) {
-    if (electonVersion) {
-        process.versions["electron"] = electonVersion;
+    if (electronHack.version) {
+        process.versions["electron"] = electronHack.version;
     }
 
-    if (electronRunAsNode) {
-        process.env["ELECTRON_RUN_AS_NODE"] = electronRunAsNode;
+    if (electronHack.runAsNode) {
+        process.env["ELECTRON_RUN_AS_NODE"] = electronHack.runAsNode;
     }
 
-    if (windowBackup) {
-        (globalThis as any).window = windowBackup;
+    if (electronHack.window) {
+        (globalThis as any).window = electronHack.window;
+    }
+
+    if (electronHack.abi) {
+        process.versions.modules = electronHack.abi;
     }
 }
 

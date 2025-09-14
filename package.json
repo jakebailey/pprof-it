@@ -33,7 +33,7 @@
         "@tsconfig/strictest": "^2.0.5",
         "@types/foreground-child": "^2.0.2",
         "@types/node": "^18.19.122",
-        "dprint": "^0.50.1",
+        "dprint": "^0.50.2",
         "eslint": "^9.33.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "eslint-plugin-unicorn": "^60.0.0",

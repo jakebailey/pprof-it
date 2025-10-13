@@ -1,5 +1,12 @@
 # pprof-it
 
+## 4.0.1
+
+### Patch Changes
+
+- cbbc2d3: Enable verbatimModuleSyntax
+- 9c76880: Update deps
+
 ## 4.0.0
 
 ### Major Changes

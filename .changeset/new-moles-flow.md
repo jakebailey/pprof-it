@@ -1,5 +1,5 @@
 ---
-"pprof-it": patch
+'pprof-it': patch
 ---
 
 Update deps

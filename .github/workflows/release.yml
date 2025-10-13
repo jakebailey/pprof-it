@@ -9,6 +9,7 @@ on:
 permissions:
   pull-requests: write
   contents: write
+  id-token: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -26,6 +27,8 @@ jobs:
         with:
           node-version: '*'
 
+      - run: npm install -g npm@latest
+
       - name: npm ci
         run: npm ci
 
@@ -37,4 +40,3 @@ jobs:
           publish: npx changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

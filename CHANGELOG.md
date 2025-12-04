@@ -1,5 +1,11 @@
 # pprof-it
 
+## 4.0.2
+
+### Patch Changes
+
+- 51affbf: Update deps
+
 ## 4.0.1
 
 ### Patch Changes

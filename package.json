@@ -40,7 +40,7 @@
         "globals": "^16.5.0",
         "rimraf": "^6.1.2",
         "typescript": "^5.9.3",
-        "typescript-eslint": "^8.48.1"
+        "typescript-eslint": "^8.56.1"
     },
     "packageManager": "npm@10.9.4+sha512.3a7506f37e85c1ba1021baad79f0cd9724748131f321fc117c4dc3ba235ec01be7327584a41d15117c01945560aa9373220628fcc1e1dddd877a5fe9b336a900"
 }

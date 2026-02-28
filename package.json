@@ -6,7 +6,7 @@
     "author": "Jake Bailey",
     "license": "MIT",
     "engines": {
-        "node": ">=18"
+        "node": ">=24.14.0"
     },
     "bin": "dist/main.js",
     "main": "dist/index.js",
@@ -32,7 +32,7 @@
         "@tsconfig/node18": "^18.2.6",
         "@tsconfig/strictest": "^2.0.8",
         "@types/foreground-child": "^2.0.2",
-        "@types/node": "^18.19.130",
+        "@types/node": "^24.11.0",
         "dprint": "^0.50.2",
         "eslint": "^9.39.1",
         "eslint-plugin-simple-import-sort": "^12.1.1",

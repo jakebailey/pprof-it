@@ -1,5 +1,5 @@
 {
-    "extends": ["@tsconfig/node18", "@tsconfig/strictest"],
+    "extends": ["@tsconfig/node20", "@tsconfig/strictest"],
     "compilerOptions": {
         "outDir": "./dist",
         "declaration": true,

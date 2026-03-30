@@ -42,5 +42,5 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.48.1"
     },
-    "packageManager": "npm@10.9.4+sha512.3a7506f37e85c1ba1021baad79f0cd9724748131f321fc117c4dc3ba235ec01be7327584a41d15117c01945560aa9373220628fcc1e1dddd877a5fe9b336a900"
+    "packageManager": "npm@10.9.8+sha512.7d8c1be8e0d298792aac9410682c58dccda53dffe6a600bb8a4d074b3cc8c06e421ad69b469e1b36a8a46adbc2a13e366f920d412aae7551f447bc95982f6156"
 }

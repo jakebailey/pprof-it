@@ -25,7 +25,8 @@
         "dist/**",
         "coverage/**",
         ".data/**",
-        "pnpm-lock.yaml"
+        "pnpm-lock.yaml",
+        ".changeset/*.md"
     ],
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.95.13.wasm",

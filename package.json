@@ -18,6 +18,7 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc --watch",
+        "test": "node test.js",
         "prepack": "rimraf dist && npm run build",
         "version": "changeset version && npm install"
     },

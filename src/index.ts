@@ -275,17 +275,21 @@ class TimeProfiler extends Profiler {
     }
 
     protected _stop(): Profile {
-        const profile = this._timeProfiler.stop(false);
-
-        const serialized_profile = pprofProfileSerializer.serializeTimeProfile(
-            profile,
-            Options.timeInterval,
-            /*gSourceMapper*/ undefined,
-            true,
-            /*generateLabels*/ undefined,
-        );
-
-        return serialized_profile;
+        try {
+            return this._timeProfiler.stopAndCollect(
+                false,
+                (profile: any) =>
+                    pprofProfileSerializer.serializeTimeProfile(
+                        profile,
+                        Options.timeInterval,
+                        /*gSourceMapper*/ undefined,
+                        true,
+                        /*generateLabels*/ undefined,
+                    ),
+            );
+        } finally {
+            this._timeProfiler.dispose();
+        }
     }
 }
 
@@ -319,20 +323,26 @@ if (profilers.length > 0) {
     }
 
     onExit(() => {
-        log(`Stopping profilers`);
-        for (const p of profilers) {
-            p.stop();
-        }
-
-        if (Options.sanitize) {
-            log("Sanitizing profiles");
+        try {
+            log(`Stopping profilers`);
             for (const p of profilers) {
-                p.sanitize();
+                p.stop();
             }
-        }
 
-        for (const p of profilers) {
-            p.write();
+            if (Options.sanitize) {
+                log("Sanitizing profiles");
+                for (const p of profilers) {
+                    p.sanitize();
+                }
+            }
+
+            for (const p of profilers) {
+                p.write();
+            }
+        } catch (e) {
+            console.error("pprof-it:", e);
+            process.exitCode ||= 1;
+            return;
         }
 
         // signal-exit always forces an exit, even if there are existing listeners.

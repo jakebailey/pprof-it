@@ -133,6 +133,7 @@ export default tseslint.config(
         files: [
             ".ncurc.cjs",
             "eslint.config.mjs",
+            "test.js",
         ],
         extends: [tseslint.configs.disableTypeChecked],
     },

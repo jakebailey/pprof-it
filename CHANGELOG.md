@@ -1,5 +1,11 @@
 # pprof-it
 
+## 4.0.4
+
+### Patch Changes
+
+- 4b1c03e: Fix crash with latest version of pprof
+
 ## 4.0.3
 
 ### Patch Changes

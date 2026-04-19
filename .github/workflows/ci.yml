@@ -45,8 +45,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: |
-          node ./dist/main.js ./node_modules/typescript/lib/tsc.js
+      - run: npm test
 
   eslint:
     name: ESLint

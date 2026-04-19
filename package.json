@@ -18,7 +18,8 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc --watch",
-        "prepack": "rimraf dist && npm run build"
+        "prepack": "rimraf dist && npm run build",
+        "version": "changeset version && npm install"
     },
     "dependencies": {
         "@datadog/pprof": "^5.14.1",

@@ -48,6 +48,7 @@ jobs:
         with:
           title: 'Release v${{ steps.version.outputs.version }}'
           commit: 'Release v${{ steps.version.outputs.version }}'
+          version: npm run version
           publish: npx changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

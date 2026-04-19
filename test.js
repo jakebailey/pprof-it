@@ -11,6 +11,8 @@ for (const f of [heapOut, timeOut]) {
     } catch {}
 }
 
+let failed = false;
+
 try {
     child_process.execFileSync(process.execPath, [
         path.join(__dirname, "dist", "main.js"),
@@ -19,12 +21,10 @@ try {
         env: { ...process.env, PPROF_HEAP_OUT: heapOut, PPROF_TIME_OUT: timeOut },
         stdio: "inherit",
     });
-} catch {
-    // The profiler crash may or may not affect the exit code;
-    // we verify by checking output files below.
+} catch (e) {
+    console.error(`FAIL: process exited with code ${e.status}`);
+    failed = true;
 }
-
-let failed = false;
 
 for (const f of [heapOut, timeOut]) {
     try {

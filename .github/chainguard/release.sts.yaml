@@ -1,0 +1,8 @@
+issuer: https://token.actions.githubusercontent.com
+subject: repo:jakebailey/pprof-it:ref:refs/heads/main
+claim_pattern:
+  workflow_ref: jakebailey/pprof-it/\.github/workflows/release\.yml@refs/heads/main
+
+permissions:
+  contents: write
+  pull_requests: write

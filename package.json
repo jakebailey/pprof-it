@@ -25,7 +25,7 @@
     "dependencies": {
         "@datadog/pprof": "^5.14.1",
         "foreground-child": "^4.0.3",
-        "pprof-format": "^2.2.1",
+        "pprof-format": "^2.2.2",
         "signal-exit": "^4.1.0"
     },
     "devDependencies": {

@@ -23,7 +23,7 @@
         "version": "changeset version && npm install"
     },
     "dependencies": {
-        "@datadog/pprof": "^5.14.1",
+        "@datadog/pprof": "5.15.1",
         "foreground-child": "^4.0.3",
         "pprof-format": "^2.2.1",
         "signal-exit": "^4.1.0"

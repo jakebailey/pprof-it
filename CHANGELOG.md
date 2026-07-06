@@ -1,5 +1,11 @@
 # pprof-it
 
+## 4.0.5
+
+### Patch Changes
+
+- c9b4069: Pin @datadog/pprof to avoid broken installs from 5.16.0.
+
 ## 4.0.4
 
 ### Patch Changes

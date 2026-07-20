@@ -41,7 +41,7 @@
         "globals": "^17.7.0",
         "rimraf": "^6.1.3",
         "typescript": "^6.0.3",
-        "typescript-eslint": "^8.63.0"
+        "typescript-eslint": "^8.65.0"
     },
     "packageManager": "npm@11.18.0+sha512.4faecce0be70366d1c67b1012c4adc1246354a6cc45bf589f92003073b05518d547403df1475c542d67a4845e22b4fafcd7cac0af02c7a96cc6814f09eb003fb"
 }

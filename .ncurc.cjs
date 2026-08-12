@@ -7,4 +7,5 @@ module.exports = {
         if (major === "0") return "minor";
         return "latest";
     },
+    reject: ["@datadog/pprof"],
 };

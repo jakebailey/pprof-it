@@ -16,8 +16,7 @@ let failed = false;
 try {
     child_process.execFileSync(process.execPath, [
         path.join(__dirname, "dist", "main.js"),
-        path.join(__dirname, "node_modules", "@changesets", "cli", "bin.js"),
-        "--help",
+        path.join(__dirname, "test-workload.js"),
     ], {
         env: { ...process.env, PPROF_HEAP_OUT: heapOut, PPROF_TIME_OUT: timeOut },
         stdio: "inherit",

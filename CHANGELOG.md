@@ -1,5 +1,11 @@
 # pprof-it
 
+## 4.1.0
+
+### Minor Changes
+
+- 4d482f3: Update runtime dependencies and the development toolchain.
+
 ## 4.0.5
 
 ### Patch Changes

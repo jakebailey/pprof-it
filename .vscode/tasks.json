@@ -6,8 +6,8 @@
         {
             "label": "tsc: watch",
             "type": "shell",
-            "command": "node",
-            "args": ["${workspaceFolder}/node_modules/typescript/lib/tsc.js", "--watch"],
+            "command": "npm",
+            "args": ["run", "watch"],
             "group": "build",
             "isBackground": true,
             "problemMatcher": [

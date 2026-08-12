@@ -1,0 +1,37 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "plugins": ["typescript", "unicorn", "oxc"],
+    "categories": {
+        "correctness": "error"
+    },
+    "env": {
+        "builtin": true,
+        "node": true
+    },
+    "options": {
+        "typeAware": true
+    },
+    "rules": {
+        "eqeqeq": "error",
+        "no-constant-condition": "off",
+        "no-empty": "off",
+        "no-inner-declarations": "off",
+        "no-undef": "off",
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+        "no-use-before-define": "off",
+        "sort-imports": "error",
+        "typescript/no-empty-interface": "off",
+        "typescript/no-empty-object-type": "off",
+        "typescript/no-explicit-any": "off",
+        "typescript/no-import-type-side-effects": "error",
+        "typescript/no-namespace": "off",
+        "typescript/no-require-imports": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "typescript/require-await": "off",
+        "typescript/restrict-template-expressions": "off"
+    }
+}

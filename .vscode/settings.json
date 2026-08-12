@@ -2,7 +2,7 @@
     "editor.defaultFormatter": "dprint.dprint",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
+        "source.fixAll.oxc": "explicit"
     },
 
     // These options search the repo recursively and slow down

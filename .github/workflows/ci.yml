@@ -47,8 +47,8 @@ jobs:
 
       - run: npm test
 
-  eslint:
-    name: ESLint
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'schedule' }}
 
@@ -58,7 +58,7 @@ jobs:
         with:
           node-version: '*'
       - run: npm ci
-      - run: npx eslint .
+      - run: npm run lint
 
   dprint:
     name: dprint

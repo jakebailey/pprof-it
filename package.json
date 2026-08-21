@@ -35,7 +35,7 @@
         "@tsconfig/strictest": "^2.0.8",
         "@types/foreground-child": "^2.0.2",
         "@types/node": "^18.19.130",
-        "dprint": "^0.55.2",
+        "dprint": "^0.56.1",
         "oxlint": "^1.78.0",
         "oxlint-tsgolint": "^7.0.2001",
         "rimraf": "^6.1.3",
